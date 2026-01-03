@@ -154,7 +154,7 @@ const disposeEditor = () => {
 watch(isOpen, async open => {
   if (open) {
     promptText.value = props.prompt?.prompt ?? '';
-    isFullScreen.value = false;
+    isFullScreen.value = true;
     await nextTick();
     initEditor();
   } else {
