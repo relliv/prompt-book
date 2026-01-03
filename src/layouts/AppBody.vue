@@ -48,41 +48,41 @@ const handleGetStarted = () => {
 
 .body {
   @apply flex-1 overflow-y-auto bg-(--bg-primary) p-4;
-}
 
-.welcome {
-  @apply flex flex-col items-center justify-center h-full text-center px-8 py-12;
-}
+  .welcome {
+    @apply flex flex-col items-center justify-center h-full text-center px-8 py-12;
 
-.welcome-icon {
-  @apply w-20 h-20 mb-6 text-(--text-tertiary);
+    .welcome-icon {
+      @apply w-20 h-20 mb-6 text-(--text-tertiary);
 
-  svg {
-    @apply w-full h-full;
-  }
-}
+      svg {
+        @apply w-full h-full;
+      }
+    }
 
-.welcome-title {
-  @apply text-3xl font-bold mb-4 text-(--text-primary);
-}
+    .welcome-title {
+      @apply text-3xl font-bold mb-4 text-(--text-primary);
+    }
 
-.welcome-description {
-  @apply text-base max-w-md mb-8 text-(--text-secondary) leading-relaxed;
-}
+    .welcome-description {
+      @apply text-base max-w-md mb-8 text-(--text-secondary) leading-relaxed;
+    }
 
-.welcome-actions {
-  @apply flex gap-4;
-}
+    .welcome-actions {
+      @apply flex gap-4;
 
-.primary-button {
-  @apply inline-flex items-center gap-2 px-6 py-3 rounded-lg font-medium text-white cursor-pointer border-none transition-colors duration-200 bg-(--accent-color);
+      .primary-button {
+        @apply inline-flex items-center gap-2 px-6 py-3 rounded-lg font-medium text-white cursor-pointer border-none transition-colors duration-200 bg-(--accent-color);
 
-  &:hover {
-    @apply bg-(--accent-hover);
-  }
+        &:hover {
+          @apply bg-(--accent-hover);
+        }
 
-  .button-icon {
-    @apply w-5 h-5;
+        .button-icon {
+          @apply w-5 h-5;
+        }
+      }
+    }
   }
 }
 </style>

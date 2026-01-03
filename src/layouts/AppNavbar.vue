@@ -60,41 +60,41 @@ const handleSettings = () => {
 
 .navbar {
   @apply flex items-center justify-between px-6 py-3 border-b border-(--border-color) bg-(--header-bg);
-}
 
-.search-container {
-  @apply relative flex items-center flex-1 max-w-md;
-}
+  .search-container {
+    @apply relative flex items-center flex-1 max-w-md;
 
-.search-icon {
-  @apply absolute left-3 w-5 h-5 text-(--text-tertiary) pointer-events-none;
-}
+    .search-icon {
+      @apply absolute left-3 w-5 h-5 text-(--text-tertiary) pointer-events-none;
+    }
 
-.search-input {
-  @apply w-full pl-10 pr-4 py-2 rounded-lg border border-(--border-color) bg-(--bg-primary) text-(--text-primary) text-sm transition-all duration-200;
+    .search-input {
+      @apply w-full pl-10 pr-4 py-2 rounded-lg border border-(--border-color) bg-(--bg-primary) text-(--text-primary) text-sm transition-all duration-200;
 
-  &::placeholder {
-    @apply text-(--text-tertiary);
+      &::placeholder {
+        @apply text-(--text-tertiary);
+      }
+
+      &:focus {
+        @apply outline-none border-(--accent-color) ring-2 ring-(--accent-color)/20;
+      }
+    }
   }
 
-  &:focus {
-    @apply outline-none border-(--accent-color) ring-2 ring-(--accent-color)/20;
-  }
-}
+  .navbar-actions {
+    @apply flex items-center gap-2;
 
-.navbar-actions {
-  @apply flex items-center gap-2;
-}
+    .action-button {
+      @apply flex items-center justify-center w-10 h-10 rounded-lg bg-transparent border-none cursor-pointer text-(--text-secondary) transition-colors duration-200;
 
-.action-button {
-  @apply flex items-center justify-center w-10 h-10 rounded-lg bg-transparent border-none cursor-pointer text-(--text-secondary) transition-colors duration-200;
+      &:hover {
+        @apply bg-(--bg-tertiary) text-(--text-primary);
+      }
 
-  &:hover {
-    @apply bg-(--bg-tertiary) text-(--text-primary);
-  }
-
-  .icon {
-    @apply w-5 h-5;
+      .icon {
+        @apply w-5 h-5;
+      }
+    }
   }
 }
 </style>

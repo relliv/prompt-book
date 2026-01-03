@@ -21,9 +21,9 @@ import AppBody from './AppBody.vue';
 
 .layout {
   @apply flex h-screen w-screen overflow-hidden;
-}
 
-.layout-main {
-  @apply flex flex-col flex-1 overflow-hidden;
+  .layout-main {
+    @apply flex flex-col flex-1 overflow-hidden;
+  }
 }
 </style>

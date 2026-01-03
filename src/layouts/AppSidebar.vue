@@ -64,61 +64,61 @@ const handleAddProject = () => {
 
 .sidebar {
   @apply flex flex-col w-64 h-full border-r border-(--border-color) bg-(--bg-secondary);
-}
 
-.sidebar-header {
-  @apply flex items-center px-4 py-4 border-b border-(--border-color);
-}
+  .sidebar-header {
+    @apply flex items-center px-4 py-4 border-b border-(--border-color);
 
-.logo {
-  @apply text-lg font-bold text-(--text-primary) m-0;
-}
-
-.sidebar-content {
-  @apply flex-1 overflow-y-auto p-3;
-}
-
-.section-header {
-  @apply flex items-center justify-between mb-2 px-1;
-}
-
-.section-title {
-  @apply text-xs font-semibold uppercase tracking-wider text-(--text-tertiary);
-}
-
-.add-button {
-  @apply flex items-center justify-center w-6 h-6 rounded bg-transparent border-none cursor-pointer text-(--text-tertiary) transition-colors duration-200;
-
-  &:hover {
-    @apply bg-(--bg-tertiary) text-(--text-primary);
+    .logo {
+      @apply text-lg font-bold text-(--text-primary) m-0;
+    }
   }
 
-  .icon {
-    @apply w-4 h-4;
+  .sidebar-content {
+    @apply flex-1 overflow-y-auto p-3;
+
+    .section-header {
+      @apply flex items-center justify-between mb-2 px-1;
+
+      .section-title {
+        @apply text-xs font-semibold uppercase tracking-wider text-(--text-tertiary);
+      }
+
+      .add-button {
+        @apply flex items-center justify-center w-6 h-6 rounded bg-transparent border-none cursor-pointer text-(--text-tertiary) transition-colors duration-200;
+
+        &:hover {
+          @apply bg-(--bg-tertiary) text-(--text-primary);
+        }
+
+        .icon {
+          @apply w-4 h-4;
+        }
+      }
+    }
+
+    .projects-list {
+      @apply flex flex-col gap-1;
+
+      .project-item {
+        @apply flex items-center gap-3 w-full px-3 py-2 rounded-lg bg-transparent border-none cursor-pointer text-left text-(--text-secondary) transition-colors duration-200;
+
+        &:hover {
+          @apply bg-(--bg-tertiary) text-(--text-primary);
+        }
+
+        &.active {
+          @apply bg-(--accent-color) text-white;
+        }
+
+        .project-icon {
+          @apply text-base;
+        }
+
+        .project-name {
+          @apply text-sm font-medium truncate;
+        }
+      }
+    }
   }
-}
-
-.projects-list {
-  @apply flex flex-col gap-1;
-}
-
-.project-item {
-  @apply flex items-center gap-3 w-full px-3 py-2 rounded-lg bg-transparent border-none cursor-pointer text-left text-(--text-secondary) transition-colors duration-200;
-
-  &:hover {
-    @apply bg-(--bg-tertiary) text-(--text-primary);
-  }
-
-  &.active {
-    @apply bg-(--accent-color) text-white;
-  }
-}
-
-.project-icon {
-  @apply text-base;
-}
-
-.project-name {
-  @apply text-sm font-medium truncate;
 }
 </style>
