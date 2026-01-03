@@ -226,6 +226,7 @@ defineExpose({ open, close });
     max-width: 100%;
     height: 100%;
     max-height: 100%;
+    animation: fullscreen-show 150ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
   }
 
   .dialog-header {
@@ -326,6 +327,16 @@ defineExpose({ open, close });
   to {
     opacity: 1;
     transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes fullscreen-show {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
   }
 }
 </style>
