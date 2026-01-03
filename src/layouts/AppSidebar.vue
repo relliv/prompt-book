@@ -19,28 +19,28 @@
       </div>
 
       <nav class="projects-list">
-        <div v-for="project in projects" :key="project.id" class="project-row">
-          <button
-            class="project-item"
-            :class="{ active: selectedProjectId === project.id }"
-            @click="handleProjectClick(project.id)"
-          >
-            <span class="project-icon">{{ project.icon }}</span>
-            <span class="project-name">{{ project.name }}</span>
-          </button>
+        <button
+          v-for="project in projects"
+          :key="project.id"
+          class="project-item"
+          :class="{ active: selectedProjectId === project.id }"
+          @click="handleProjectClick(project.id)"
+        >
+          <span class="project-icon">{{ project.icon }}</span>
+          <span class="project-name">{{ project.name }}</span>
 
           <DropdownMenuRoot>
             <DropdownMenuTrigger as-child>
-              <button
+              <span
                 class="menu-trigger"
-                :class="{ active: selectedProjectId === project.id }"
+                role="button"
                 aria-label="Project options"
                 @click.stop
               >
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
                 </svg>
-              </button>
+              </span>
             </DropdownMenuTrigger>
 
             <DropdownMenuPortal>
@@ -57,7 +57,7 @@
               </DropdownMenuContent>
             </DropdownMenuPortal>
           </DropdownMenuRoot>
-        </div>
+        </button>
       </nav>
     </div>
 
@@ -175,55 +175,51 @@ onMounted(() => {
     .projects-list {
       @apply flex flex-col gap-1;
 
-      .project-row {
-        @apply flex items-center gap-1;
+      .project-item {
+        @apply flex items-center gap-3 w-full px-3 py-2 rounded-lg bg-transparent border-none cursor-pointer text-left text-(--text-secondary) transition-colors duration-200;
 
-        &:hover .menu-trigger {
-          @apply opacity-100;
+        .project-icon {
+          @apply text-base;
         }
 
-        .project-item {
-          @apply flex items-center gap-3 flex-1 px-3 py-2 rounded-lg bg-transparent border-none cursor-pointer text-left text-(--text-secondary) transition-colors duration-200;
-
-          &:hover {
-            @apply bg-(--bg-tertiary) text-(--text-primary);
-          }
-
-          &.active {
-            @apply bg-(--accent-color) text-white;
-          }
-
-          .project-icon {
-            @apply text-base;
-          }
-
-          .project-name {
-            @apply text-sm font-medium truncate;
-          }
+        .project-name {
+          @apply flex-1 text-sm font-medium truncate;
         }
 
-        .menu-trigger {
-          @apply flex items-center justify-center w-6 h-6 rounded bg-transparent border-none cursor-pointer opacity-0 transition-all duration-200;
+        &:hover {
+          @apply bg-(--bg-tertiary) text-(--text-primary);
+        }
 
-          color: var(--text-tertiary);
+        &.active {
+          @apply bg-(--accent-color) text-white;
+        }
+      }
 
-          &:hover {
-            @apply bg-(--bg-tertiary);
+      .menu-trigger {
+        @apply flex items-center justify-center w-6 h-6 rounded cursor-pointer opacity-0 transition-all duration-200;
 
-            color: var(--text-primary);
-          }
+        color: var(--text-tertiary);
 
-          &.active {
-            color: white;
+        svg {
+          @apply w-4 h-4;
+        }
 
-            &:hover {
-              @apply bg-white/20;
-            }
-          }
+        &:hover {
+          @apply bg-(--border-color);
 
-          svg {
-            @apply w-4 h-4;
-          }
+          color: var(--text-primary);
+        }
+      }
+
+      .project-item:hover .menu-trigger {
+        @apply opacity-100;
+      }
+
+      .project-item.active .menu-trigger {
+        color: white;
+
+        &:hover {
+          @apply bg-white/20;
         }
       }
     }
