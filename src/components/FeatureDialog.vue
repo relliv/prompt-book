@@ -117,6 +117,16 @@ const handleSubmit = () => {
   emit('submit', featureName.value.trim(), props.feature?.id);
   isOpen.value = false;
 };
+
+const open = () => {
+  isOpen.value = true;
+};
+
+const close = () => {
+  isOpen.value = false;
+};
+
+defineExpose({ open, close });
 </script>
 
 <style scoped>
