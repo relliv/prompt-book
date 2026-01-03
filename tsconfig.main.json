@@ -12,6 +12,7 @@
     "electron/main/**/*",
     "electron/preload/**/*",
     "electron/shared/**/*",
+    "src/shared/**/*",
     "types/**/*",
     "tests/main/**/*",
     "tests/setup.ts"

@@ -9,6 +9,7 @@ export default defineConfig({
       '@shared': resolve(__dirname, 'electron/shared'),
       '@preload': resolve(__dirname, 'electron/preload'),
       '@types': resolve(__dirname, 'types'),
+      '@app': resolve(__dirname, 'src'),
     },
   },
   build: {
@@ -30,6 +31,10 @@ export default defineConfig({
         }
         // Externalize @egoist/tipc/main only (bundle renderer for preload)
         if (id === '@egoist/tipc/main') {
+          return true;
+        }
+        // Externalize native modules that can't be bundled
+        if (id === 'better-sqlite3') {
           return true;
         }
         return false;
