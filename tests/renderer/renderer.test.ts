@@ -7,10 +7,11 @@ describe('Renderer Process', () => {
     (global as { window?: Window & { electronAPI: ElectronAPI } }).window = {
       electronAPI: {
         api: {
-          getAppVersion: vi.fn(),
-          getSystemInfo: vi.fn(),
-          saveData: vi.fn(),
-          getVersions: vi.fn(),
+          getProjects: vi.fn(),
+          getProject: vi.fn(),
+          createProject: vi.fn(),
+          updateProject: vi.fn(),
+          deleteProject: vi.fn(),
         },
         platform: 'darwin' as NodeJS.Platform,
       },
@@ -27,19 +28,23 @@ describe('Renderer Process', () => {
     expect(typeof window.electronAPI.platform).toBe('string');
   });
 
-  it('should call getSystemInfo API correctly', async () => {
-    const mockSystemInfo = vi.mocked(window.electronAPI.api.getSystemInfo);
-    const mockData = {
-      platform: 'darwin' as NodeJS.Platform,
-      arch: 'arm64' as NodeJS.Architecture,
-      version: '21.0.0',
-      hostname: 'test-machine',
-    };
-    mockSystemInfo.mockResolvedValue(mockData);
+  it('should call getProjects API correctly', async () => {
+    const mockGetProjects = vi.mocked(window.electronAPI.api.getProjects);
+    const mockData = [
+      {
+        id: 1,
+        name: 'Project 1',
+        icon: '📁',
+        description: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ];
+    mockGetProjects.mockResolvedValue(mockData);
 
-    const result = await window.electronAPI.api.getSystemInfo();
+    const result = await window.electronAPI.api.getProjects();
 
-    expect(mockSystemInfo).toHaveBeenCalled();
+    expect(mockGetProjects).toHaveBeenCalled();
     expect(result).toEqual(mockData);
   });
 });

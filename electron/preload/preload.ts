@@ -31,11 +31,6 @@ interface UpdateProjectInput {
 contextBridge.exposeInMainWorld('electronAPI', {
   // Expose individual API methods
   api: {
-    getAppVersion: () => api.getAppVersion(),
-    saveData: (input: { key: string; value: unknown }) => api.saveData(input),
-    getSystemInfo: () => api.getSystemInfo(),
-    getVersions: () => api.getVersions(),
-
     // Project CRUD operations
     getProjects: () => api.getProjects(),
     getProject: (input: { id: number }) => api.getProject(input),
@@ -63,22 +58,6 @@ export interface Project {
 // Type definitions for renderer process
 export type ElectronAPI = {
   api: {
-    getAppVersion: () => Promise<string>;
-    saveData: (input: { key: string; value: unknown }) => Promise<{
-      success: boolean;
-      message: string;
-    }>;
-    getSystemInfo: () => Promise<{
-      platform: NodeJS.Platform;
-      arch: NodeJS.Architecture;
-      version: string;
-      hostname: string;
-    }>;
-    getVersions: () => Promise<{
-      electron: string;
-      chrome: string;
-      node: string;
-    }>;
     // Project operations
     getProjects: () => Promise<Project[]>;
     getProject: (input: { id: number }) => Promise<Project | null>;
