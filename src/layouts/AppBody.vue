@@ -47,7 +47,7 @@ const handleGetStarted = () => {
 @reference 'tailwindcss';
 
 .body {
-  @apply flex-1 overflow-y-auto bg-(--bg-primary);
+  @apply flex-1 overflow-y-auto bg-(--bg-primary) p-4;
 }
 
 .welcome {

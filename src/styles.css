@@ -38,24 +38,24 @@
   --card-shadow: 0 4px 12px rgb(0 0 0 / 10%);
 }
 
-/* Dark theme */
+/* Dark theme - GitHub Dark Dimmed */
 [data-theme='dark'] {
-  --bg-primary: #1a1a1a;
-  --bg-secondary: #2a2a2a;
-  --bg-tertiary: #3a3a3a;
-  --text-primary: #fff;
-  --text-secondary: #b0b0b0;
-  --text-tertiary: #808080;
-  --border-color: #404040;
-  --shadow-color: rgb(0 0 0 / 30%);
-  --accent-color: var(--color-primary-600);
-  --accent-hover: var(--color-primary-500);
-  --code-bg: #2d2d2d;
-  --code-text: #e0e0e0;
+  --bg-primary: #010409;
+  --bg-secondary: #0d1117;
+  --bg-tertiary: #161b22;
+  --text-primary: #e6edf3;
+  --text-secondary: #8b949e;
+  --text-tertiary: #6e7681;
+  --border-color: #21262d;
+  --shadow-color: rgb(0 0 0 / 50%);
+  --accent-color: var(--color-primary-500);
+  --accent-hover: var(--color-primary-400);
+  --code-bg: #0d1117;
+  --code-text: #e6edf3;
   --primary-color: var(--color-primary-500);
-  --header-bg: #2a2a2a;
-  --card-bg: #2a2a2a;
-  --card-shadow: 0 4px 12px rgb(0 0 0 / 30%);
+  --header-bg: #0d1117;
+  --card-bg: #0d1117;
+  --card-shadow: 0 4px 12px rgb(0 0 0 / 50%);
 }
 
 /* Reset and Base Styles */
