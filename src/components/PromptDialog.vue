@@ -97,8 +97,10 @@ const emit = defineEmits<{
   submit: [title: string, promptText: string, promptId?: number];
 }>();
 
+const FULLSCREEN_STORAGE_KEY = 'prompt-dialog-fullscreen';
+
 const isOpen = ref(false);
-const isFullScreen = ref(false);
+const isFullScreen = ref(localStorage.getItem(FULLSCREEN_STORAGE_KEY) !== 'false');
 const promptTitle = ref('');
 const promptText = ref('');
 const editorContainerRef = ref<HTMLDivElement | null>(null);
@@ -110,6 +112,7 @@ const isEditMode = props.prompt !== undefined;
 
 const toggleFullScreen = () => {
   isFullScreen.value = !isFullScreen.value;
+  localStorage.setItem(FULLSCREEN_STORAGE_KEY, String(isFullScreen.value));
   nextTick(() => {
     editorInstance.value?.layout();
   });
@@ -176,7 +179,6 @@ watch(isOpen, async open => {
   if (open) {
     promptTitle.value = props.prompt?.title ?? '';
     promptText.value = props.prompt?.prompt ?? '';
-    isFullScreen.value = true;
     await nextTick();
     initEditor();
     window.addEventListener('keydown', handleKeyDown);
