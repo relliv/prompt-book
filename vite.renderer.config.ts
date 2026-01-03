@@ -1,9 +1,10 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
 import vue from '@vitejs/plugin-vue';
+import monacoEditor from 'vite-plugin-monaco-editor';
 
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [vue(), monacoEditor({})],
   resolve: {
     alias: {
       '@app': resolve(__dirname, 'src'),

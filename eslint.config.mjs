@@ -9,7 +9,14 @@ const prettierOptions = JSON.parse(readFileSync("./.prettierrc", "utf8"));
 
 export default [
   {
-    ignores: ["node_modules/**", "dist/**", "*.config.ts", "*.config.mjs"],
+    ignores: [
+      "node_modules/**",
+      "dist/**",
+      "*.config.ts",
+      "*.config.mjs",
+      "**/monacoeditorwork/**",
+      "src/**/monacoeditorwork/**",
+    ],
   },
   {
     files: [

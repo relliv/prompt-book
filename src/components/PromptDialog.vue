@@ -42,13 +42,7 @@
 
         <form class="dialog-form" @submit.prevent="handleSubmit">
           <div class="form-field">
-            <textarea
-              ref="textareaRef"
-              v-model="promptText"
-              class="prompt-textarea"
-              placeholder="Enter your prompt here..."
-              required
-            />
+            <div ref="editorContainerRef" class="editor-container" />
           </div>
 
           <div class="dialog-actions">
@@ -66,7 +60,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, nextTick } from 'vue';
+import { ref, watch, nextTick, onBeforeUnmount, shallowRef } from 'vue';
 import {
   DialogRoot,
   DialogTrigger,
@@ -77,6 +71,7 @@ import {
   DialogDescription,
   DialogClose,
 } from 'reka-ui';
+import * as monaco from 'monaco-editor';
 import type { Prompt } from '@app/shared/models';
 
 interface Props {
@@ -92,12 +87,68 @@ const emit = defineEmits<{
 const isOpen = ref(false);
 const isFullScreen = ref(false);
 const promptText = ref('');
-const textareaRef = ref<HTMLTextAreaElement | null>(null);
+const editorContainerRef = ref<HTMLDivElement | null>(null);
+const editorInstance = shallowRef<monaco.editor.IStandaloneCodeEditor | null>(
+  null
+);
 
 const isEditMode = props.prompt !== undefined;
 
 const toggleFullScreen = () => {
   isFullScreen.value = !isFullScreen.value;
+  nextTick(() => {
+    editorInstance.value?.layout();
+  });
+};
+
+const initEditor = () => {
+  if (!editorContainerRef.value || editorInstance.value) return;
+
+  monaco.editor.defineTheme('prompt-book-dark', {
+    base: 'vs-dark',
+    inherit: true,
+    rules: [],
+    colors: {
+      'editor.background': '#0d1117',
+      'editor.foreground': '#e6edf3',
+      'editorLineNumber.foreground': '#7d8590',
+      'editorLineNumber.activeForeground': '#e6edf3',
+      'editor.selectionBackground': '#388bfd66',
+      'editor.lineHighlightBackground': '#161b22',
+      'editorCursor.foreground': '#d6bd1a',
+    },
+  });
+
+  editorInstance.value = monaco.editor.create(editorContainerRef.value, {
+    value: promptText.value,
+    language: 'markdown',
+    theme: 'prompt-book-dark',
+    minimap: { enabled: false },
+    lineNumbers: 'on',
+    wordWrap: 'on',
+    fontSize: 14,
+    fontFamily: 'ui-monospace, monospace',
+    padding: { top: 16, bottom: 16 },
+    scrollBeyondLastLine: false,
+    automaticLayout: true,
+    tabSize: 2,
+    renderLineHighlight: 'line',
+    cursorBlinking: 'smooth',
+    smoothScrolling: true,
+  });
+
+  editorInstance.value.onDidChangeModelContent(() => {
+    promptText.value = editorInstance.value?.getValue() ?? '';
+  });
+
+  editorInstance.value.focus();
+};
+
+const disposeEditor = () => {
+  if (editorInstance.value) {
+    editorInstance.value.dispose();
+    editorInstance.value = null;
+  }
 };
 
 watch(isOpen, async open => {
@@ -105,7 +156,9 @@ watch(isOpen, async open => {
     promptText.value = props.prompt?.prompt ?? '';
     isFullScreen.value = false;
     await nextTick();
-    textareaRef.value?.focus();
+    initEditor();
+  } else {
+    disposeEditor();
   }
 });
 
@@ -114,6 +167,7 @@ watch(
   newPrompt => {
     if (isOpen.value && newPrompt) {
       promptText.value = newPrompt.prompt;
+      editorInstance.value?.setValue(newPrompt.prompt);
     }
   },
   { deep: true }
@@ -133,6 +187,10 @@ const open = () => {
 const close = () => {
   isOpen.value = false;
 };
+
+onBeforeUnmount(() => {
+  disposeEditor();
+});
 
 defineExpose({ open, close });
 </script>
@@ -208,18 +266,10 @@ defineExpose({ open, close });
     .form-field {
       @apply flex flex-col flex-1 min-h-0;
 
-      .prompt-textarea {
-        @apply w-full flex-1 px-4 py-3 rounded-lg border border-(--border-color) bg-(--bg-primary) text-(--text-primary) text-sm leading-relaxed resize-none transition-all duration-200;
+      .editor-container {
+        @apply w-full flex-1 rounded-lg border border-(--border-color) overflow-hidden;
 
         min-height: 200px;
-
-        &::placeholder {
-          @apply text-(--text-tertiary);
-        }
-
-        &:focus {
-          @apply outline-none border-(--accent-color) ring-2 ring-(--accent-color)/20;
-        }
       }
     }
   }
@@ -253,7 +303,7 @@ defineExpose({ open, close });
   }
 }
 
-.full-screen .dialog-form .form-field .prompt-textarea {
+.full-screen .dialog-form .form-field .editor-container {
   min-height: 100%;
 }
 
