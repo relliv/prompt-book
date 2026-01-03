@@ -80,6 +80,7 @@ const initializeTables = () => {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
       feature_id INTEGER NOT NULL REFERENCES project_features(id) ON DELETE CASCADE,
+      title TEXT NOT NULL DEFAULT '',
       prompt TEXT NOT NULL,
       copy_count INTEGER NOT NULL DEFAULT 0,
       created_at INTEGER NOT NULL DEFAULT (unixepoch()),
@@ -91,6 +92,15 @@ const initializeTables = () => {
   try {
     sqlite.exec(
       `ALTER TABLE project_prompts ADD COLUMN feature_id INTEGER REFERENCES project_features(id) ON DELETE CASCADE`
+    );
+  } catch {
+    // Column already exists, ignore error
+  }
+
+  // Add title column if it doesn't exist (migration for existing databases)
+  try {
+    sqlite.exec(
+      `ALTER TABLE project_prompts ADD COLUMN title TEXT NOT NULL DEFAULT ''`
     );
   } catch {
     // Column already exists, ignore error
