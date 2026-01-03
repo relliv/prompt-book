@@ -236,7 +236,7 @@ onMounted(() => {
       }
 
       .menu-trigger {
-        @apply flex items-center justify-center w-6 h-6 rounded cursor-pointer opacity-0 transition-all duration-200;
+        @apply flex items-center justify-center w-6 h-6 rounded cursor-pointer transition-all duration-200;
 
         color: var(--text-tertiary);
 
@@ -249,10 +249,6 @@ onMounted(() => {
 
           color: var(--text-primary);
         }
-      }
-
-      .project-item:hover .menu-trigger {
-        @apply opacity-100;
       }
 
       .project-item.active .menu-trigger {

@@ -431,7 +431,7 @@ watch(
       }
 
       .feature-menu-trigger {
-        @apply flex items-center justify-center w-5 h-5 rounded cursor-pointer opacity-0 transition-all duration-200 ml-1;
+        @apply flex items-center justify-center w-5 h-5 rounded cursor-pointer transition-all duration-200 ml-1;
 
         color: inherit;
 
@@ -442,10 +442,6 @@ watch(
         &:hover {
           @apply bg-black/10;
         }
-      }
-
-      &:hover .feature-menu-trigger {
-        @apply opacity-100;
       }
 
       &[data-state='active'] .feature-menu-trigger:hover {
