@@ -20,6 +20,7 @@ interface UpdateProjectInput {
 // Prompt input types
 interface CreatePromptInput {
   projectId: number;
+  featureId: number;
   prompt: string;
 }
 
@@ -162,6 +163,7 @@ export const router = {
         .insert(prompts)
         .values({
           projectId: input.projectId,
+          featureId: input.featureId,
           prompt: input.prompt,
         })
         .returning();

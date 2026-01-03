@@ -62,19 +62,7 @@ const initializeTables = () => {
     // Column already exists, ignore error
   }
 
-  // Create project_prompts table if it doesn't exist
-  sqlite.exec(`
-    CREATE TABLE IF NOT EXISTS project_prompts (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
-      prompt TEXT NOT NULL,
-      copy_count INTEGER NOT NULL DEFAULT 0,
-      created_at INTEGER NOT NULL DEFAULT (unixepoch()),
-      updated_at INTEGER NOT NULL DEFAULT (unixepoch())
-    )
-  `);
-
-  // Create project_features table if it doesn't exist
+  // Create project_features table if it doesn't exist (must be before prompts due to FK)
   sqlite.exec(`
     CREATE TABLE IF NOT EXISTS project_features (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -85,6 +73,28 @@ const initializeTables = () => {
       updated_at INTEGER NOT NULL DEFAULT (unixepoch())
     )
   `);
+
+  // Create project_prompts table if it doesn't exist
+  sqlite.exec(`
+    CREATE TABLE IF NOT EXISTS project_prompts (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+      feature_id INTEGER NOT NULL REFERENCES project_features(id) ON DELETE CASCADE,
+      prompt TEXT NOT NULL,
+      copy_count INTEGER NOT NULL DEFAULT 0,
+      created_at INTEGER NOT NULL DEFAULT (unixepoch()),
+      updated_at INTEGER NOT NULL DEFAULT (unixepoch())
+    )
+  `);
+
+  // Add feature_id column if it doesn't exist (migration for existing databases)
+  try {
+    sqlite.exec(
+      `ALTER TABLE project_prompts ADD COLUMN feature_id INTEGER REFERENCES project_features(id) ON DELETE CASCADE`
+    );
+  } catch {
+    // Column already exists, ignore error
+  }
 
   console.log('[Database] Tables initialized');
 };

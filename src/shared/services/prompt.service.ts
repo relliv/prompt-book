@@ -2,6 +2,7 @@ import type { Prompt } from '@app/shared/models';
 
 export interface CreatePromptInput {
   projectId: number;
+  featureId: number;
   prompt: string;
 }
 

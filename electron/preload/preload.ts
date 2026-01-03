@@ -28,6 +28,7 @@ interface UpdateProjectInput {
 // Prompt input types for renderer
 interface CreatePromptInput {
   projectId: number;
+  featureId: number;
   prompt: string;
 }
 
@@ -103,6 +104,7 @@ export interface Project {
 export interface Prompt {
   id: number;
   projectId: number;
+  featureId: number;
   prompt: string;
   copyCount: number;
   createdAt: Date;
