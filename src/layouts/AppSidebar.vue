@@ -24,7 +24,7 @@
           :key="project.id"
           class="project-item"
           :class="{ active: selectedProjectId === project.id }"
-          @click="projectsStore.selectProject(project.id)"
+          @click="handleProjectClick(project.id)"
         >
           <span class="project-icon">{{ project.icon }}</span>
           <span class="project-name">{{ project.name }}</span>
@@ -36,19 +36,26 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import ProjectDialog, { type ProjectFormData } from '@app/components/ProjectDialog.vue';
 import { useProjectsStore } from '@app/shared/stores';
 
+const router = useRouter();
 const projectsStore = useProjectsStore();
 const { projects, selectedProjectId } = storeToRefs(projectsStore);
 
+const handleProjectClick = (projectId: number) => {
+  router.push(`/project/${projectId}/prompts`);
+};
+
 const handleCreateProject = async (data: ProjectFormData) => {
-  await projectsStore.createProject({
+  const project = await projectsStore.createProject({
     name: data.name,
     icon: data.icon || '📁',
     description: data.description || undefined,
   });
+  router.push(`/project/${project.id}/prompts`);
 };
 
 onMounted(() => {
