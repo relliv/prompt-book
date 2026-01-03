@@ -147,9 +147,12 @@ const handleSubmit = () => {
 }
 
 .dialog-content {
-  @apply fixed top-1/2 left-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl p-6 border border-(--border-color) bg-(--bg-secondary);
+  @apply fixed z-50 w-full max-w-md rounded-xl p-6 border border-(--border-color) bg-(--bg-secondary);
 
-  animation: content-show 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: content-show 150ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
 
   .dialog-title {
     @apply text-xl font-semibold mb-2 text-(--text-primary);
@@ -238,7 +241,7 @@ const handleSubmit = () => {
 @keyframes content-show {
   from {
     opacity: 0;
-    transform: translate(-50%, -48%) scale(0.96);
+    transform: translate(-50%, -50%) scale(0.96);
   }
 
   to {
