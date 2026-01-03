@@ -19,32 +19,45 @@
       </div>
 
       <nav class="projects-list">
-        <ContextMenuRoot v-for="project in projects" :key="project.id">
-          <ContextMenuTrigger as-child>
-            <button
-              class="project-item"
-              :class="{ active: selectedProjectId === project.id }"
-              @click="handleProjectClick(project.id)"
-            >
-              <span class="project-icon">{{ project.icon }}</span>
-              <span class="project-name">{{ project.name }}</span>
-            </button>
-          </ContextMenuTrigger>
+        <div v-for="project in projects" :key="project.id" class="project-row">
+          <button
+            class="project-item"
+            :class="{ active: selectedProjectId === project.id }"
+            @click="handleProjectClick(project.id)"
+          >
+            <span class="project-icon">{{ project.icon }}</span>
+            <span class="project-name">{{ project.name }}</span>
+          </button>
 
-          <ContextMenuPortal>
-            <ContextMenuContent class="context-menu">
-              <ContextMenuItem
-                class="context-menu-item context-menu-item-danger"
-                @select="handleDeleteClick(project)"
+          <DropdownMenuRoot>
+            <DropdownMenuTrigger as-child>
+              <button
+                class="menu-trigger"
+                :class="{ active: selectedProjectId === project.id }"
+                aria-label="Project options"
+                @click.stop
               >
-                <svg class="menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
                 </svg>
-                Delete Project
-              </ContextMenuItem>
-            </ContextMenuContent>
-          </ContextMenuPortal>
-        </ContextMenuRoot>
+              </button>
+            </DropdownMenuTrigger>
+
+            <DropdownMenuPortal>
+              <DropdownMenuContent class="dropdown-menu" :side-offset="4" align="start">
+                <DropdownMenuItem
+                  class="dropdown-menu-item dropdown-menu-item-danger"
+                  @select="handleDeleteClick(project)"
+                >
+                  <svg class="menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                  Delete Project
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenuPortal>
+          </DropdownMenuRoot>
+        </div>
       </nav>
     </div>
 
@@ -63,11 +76,11 @@ import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import {
-  ContextMenuRoot,
-  ContextMenuTrigger,
-  ContextMenuPortal,
-  ContextMenuContent,
-  ContextMenuItem,
+  DropdownMenuRoot,
+  DropdownMenuTrigger,
+  DropdownMenuPortal,
+  DropdownMenuContent,
+  DropdownMenuItem,
 } from 'reka-ui';
 import ProjectDialog, { type ProjectFormData } from '@app/components/ProjectDialog.vue';
 import ConfirmDialog from '@app/components/ConfirmDialog.vue';
@@ -162,23 +175,55 @@ onMounted(() => {
     .projects-list {
       @apply flex flex-col gap-1;
 
-      .project-item {
-        @apply flex items-center gap-3 w-full px-3 py-2 rounded-lg bg-transparent border-none cursor-pointer text-left text-(--text-secondary) transition-colors duration-200;
+      .project-row {
+        @apply flex items-center gap-1;
 
-        &:hover {
-          @apply bg-(--bg-tertiary) text-(--text-primary);
+        &:hover .menu-trigger {
+          @apply opacity-100;
         }
 
-        &.active {
-          @apply bg-(--accent-color) text-white;
+        .project-item {
+          @apply flex items-center gap-3 flex-1 px-3 py-2 rounded-lg bg-transparent border-none cursor-pointer text-left text-(--text-secondary) transition-colors duration-200;
+
+          &:hover {
+            @apply bg-(--bg-tertiary) text-(--text-primary);
+          }
+
+          &.active {
+            @apply bg-(--accent-color) text-white;
+          }
+
+          .project-icon {
+            @apply text-base;
+          }
+
+          .project-name {
+            @apply text-sm font-medium truncate;
+          }
         }
 
-        .project-icon {
-          @apply text-base;
-        }
+        .menu-trigger {
+          @apply flex items-center justify-center w-6 h-6 rounded bg-transparent border-none cursor-pointer opacity-0 transition-all duration-200;
 
-        .project-name {
-          @apply text-sm font-medium truncate;
+          color: var(--text-tertiary);
+
+          &:hover {
+            @apply bg-(--bg-tertiary);
+
+            color: var(--text-primary);
+          }
+
+          &.active {
+            color: white;
+
+            &:hover {
+              @apply bg-white/20;
+            }
+          }
+
+          svg {
+            @apply w-4 h-4;
+          }
         }
       }
     }
@@ -189,12 +234,12 @@ onMounted(() => {
 <style>
 @reference 'tailwindcss';
 
-.context-menu {
+.dropdown-menu {
   @apply min-w-48 rounded-lg p-1 border border-(--border-color) bg-(--bg-secondary) shadow-lg z-50;
 
-  animation: context-menu-show 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  animation: dropdown-menu-show 150ms cubic-bezier(0.16, 1, 0.3, 1);
 
-  .context-menu-item {
+  .dropdown-menu-item {
     @apply flex items-center gap-2 px-3 py-2 rounded-md text-sm cursor-pointer outline-none transition-colors duration-150;
 
     color: var(--text-primary);
@@ -204,7 +249,7 @@ onMounted(() => {
       background-color: var(--bg-tertiary);
     }
 
-    &.context-menu-item-danger {
+    &.dropdown-menu-item-danger {
       color: #f85149;
 
       &:hover,
@@ -219,7 +264,7 @@ onMounted(() => {
   }
 }
 
-@keyframes context-menu-show {
+@keyframes dropdown-menu-show {
   from {
     opacity: 0;
     transform: scale(0.96);
