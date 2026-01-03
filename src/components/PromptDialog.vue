@@ -73,7 +73,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, nextTick, onBeforeUnmount, shallowRef } from 'vue';
+import { ref, watch, nextTick, onBeforeUnmount, shallowRef, onMounted } from 'vue';
 import {
   DialogRoot,
   DialogTrigger,
@@ -165,6 +165,13 @@ const disposeEditor = () => {
   }
 };
 
+const handleKeyDown = (e: KeyboardEvent) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+    e.preventDefault();
+    handleSubmit();
+  }
+};
+
 watch(isOpen, async open => {
   if (open) {
     promptTitle.value = props.prompt?.title ?? '';
@@ -172,8 +179,10 @@ watch(isOpen, async open => {
     isFullScreen.value = true;
     await nextTick();
     initEditor();
+    window.addEventListener('keydown', handleKeyDown);
   } else {
     disposeEditor();
+    window.removeEventListener('keydown', handleKeyDown);
   }
 });
 
@@ -206,6 +215,7 @@ const close = () => {
 
 onBeforeUnmount(() => {
   disposeEditor();
+  window.removeEventListener('keydown', handleKeyDown);
 });
 
 defineExpose({ open, close });
