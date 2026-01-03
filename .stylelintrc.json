@@ -5,7 +5,7 @@
     "at-rule-no-unknown": [
       true,
       {
-        "ignoreAtRules": ["apply", "reference", "tailwind", "layer"]
+        "ignoreAtRules": ["apply", "reference", "tailwind", "layer", "theme"]
       }
     ],
     "declaration-no-important": null
