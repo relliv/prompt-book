@@ -19,6 +19,19 @@ export const useProjectsStore = defineStore('projects', () => {
 
   const projectCount = computed(() => projects.value.length);
 
+  const recentlyOpenedProjects = computed(() =>
+    projects.value
+      .filter(
+        (p): p is typeof p & { lastOpenedAt: Date } => p.lastOpenedAt !== null
+      )
+      .sort(
+        (a, b) =>
+          new Date(b.lastOpenedAt).getTime() -
+          new Date(a.lastOpenedAt).getTime()
+      )
+      .slice(0, 5)
+  );
+
   async function fetchProjects() {
     isLoading.value = true;
     error.value = null;
@@ -106,6 +119,7 @@ export const useProjectsStore = defineStore('projects', () => {
     selectedProjectId,
     selectedProject,
     projectCount,
+    recentlyOpenedProjects,
     isLoading,
     error,
     fetchProjects,
