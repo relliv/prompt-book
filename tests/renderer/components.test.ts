@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
 import { createRouter, createMemoryHistory } from 'vue-router';
+import { createPinia, setActivePinia } from 'pinia';
 import App from '@app/App.vue';
 import Home from '@app/pages/Home.vue';
 import About from '@app/pages/About.vue';
@@ -81,8 +82,12 @@ const createMockElectronAPI = () => ({
 });
 
 describe('Vue Components', () => {
+  let pinia: ReturnType<typeof createPinia>;
+
   beforeEach(() => {
     localStorage.clear();
+    pinia = createPinia();
+    setActivePinia(pinia);
     // @ts-expect-error: Mock object uses vi.fn() for testing purposes
     window.electronAPI = createMockElectronAPI();
   });
@@ -97,7 +102,7 @@ describe('Vue Components', () => {
     });
 
     const wrapper = mount(App, {
-      global: { plugins: [router] },
+      global: { plugins: [router, pinia] },
     });
 
     expect(wrapper.find('.layout').exists()).toBe(true);
@@ -116,7 +121,7 @@ describe('Vue Components', () => {
     });
 
     const wrapper = mount(App, {
-      global: { plugins: [router] },
+      global: { plugins: [router, pinia] },
     });
 
     // Wait for async loadProjects to complete
@@ -138,7 +143,7 @@ describe('Vue Components', () => {
     });
 
     const wrapper = mount(App, {
-      global: { plugins: [router] },
+      global: { plugins: [router, pinia] },
     });
 
     const searchInput = wrapper.find('.search-input');

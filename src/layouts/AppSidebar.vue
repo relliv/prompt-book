@@ -24,7 +24,7 @@
           :key="project.id"
           class="project-item"
           :class="{ active: selectedProjectId === project.id }"
-          @click="selectProject(project.id)"
+          @click="projectsStore.selectProject(project.id)"
         >
           <span class="project-icon">{{ project.icon }}</span>
           <span class="project-name">{{ project.name }}</span>
@@ -35,52 +35,24 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { onMounted } from 'vue';
+import { storeToRefs } from 'pinia';
 import ProjectDialog, { type ProjectFormData } from '@app/components/ProjectDialog.vue';
+import { useProjectsStore } from '@app/shared/stores';
 
-interface Project {
-  id: number;
-  name: string;
-  icon: string | null;
-  description: string | null;
-}
-
-const projects = ref<Project[]>([]);
-const selectedProjectId = ref<number | null>(null);
-const isLoading = ref(true);
-
-const loadProjects = async () => {
-  try {
-    isLoading.value = true;
-    const result = await window.electronAPI.api.getProjects();
-    projects.value = result;
-  } catch (error) {
-    console.error('Failed to load projects:', error);
-  } finally {
-    isLoading.value = false;
-  }
-};
-
-const selectProject = (id: number) => {
-  selectedProjectId.value = id;
-};
+const projectsStore = useProjectsStore();
+const { projects, selectedProjectId } = storeToRefs(projectsStore);
 
 const handleCreateProject = async (data: ProjectFormData) => {
-  try {
-    const newProject = await window.electronAPI.api.createProject({
-      name: data.name,
-      icon: data.icon || '📁',
-      description: data.description || undefined,
-    });
-    projects.value.push(newProject);
-    selectedProjectId.value = newProject.id;
-  } catch (error) {
-    console.error('Failed to create project:', error);
-  }
+  await projectsStore.createProject({
+    name: data.name,
+    icon: data.icon || '📁',
+    description: data.description || undefined,
+  });
 };
 
 onMounted(() => {
-  loadProjects();
+  projectsStore.fetchProjects();
 });
 </script>
 
