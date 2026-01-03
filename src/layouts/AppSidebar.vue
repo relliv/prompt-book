@@ -19,47 +19,35 @@
       </div>
 
       <nav class="projects-list">
-        <button
-          v-for="project in projects"
-          :key="project.id"
-          class="project-item"
-          :class="{ active: selectedProjectId === project.id }"
-          @click="handleProjectClick(project.id)"
-        >
+        <button v-for="project in projects" :key="project.id" class="project-item"
+          :class="{ active: selectedProjectId === project.id }" @click="handleProjectClick(project.id)">
           <span class="project-icon">{{ project.icon }}</span>
           <span class="project-name">{{ project.name }}</span>
 
           <DropdownMenuRoot>
             <DropdownMenuTrigger as-child>
-              <span
-                class="menu-trigger"
-                role="button"
-                aria-label="Project options"
-                @click.stop
-              >
+              <span class="menu-trigger" role="button" aria-label="Project options" @click.stop>
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
                 </svg>
               </span>
             </DropdownMenuTrigger>
 
             <DropdownMenuPortal>
               <DropdownMenuContent class="dropdown-menu" :side-offset="4" align="start">
-                <DropdownMenuItem
-                  class="dropdown-menu-item"
-                  @select="handleEditClick(project)"
-                >
+                <DropdownMenuItem class="dropdown-menu-item" @select="handleEditClick(project)">
                   <svg class="menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                   </svg>
                   Edit Project
                 </DropdownMenuItem>
-                <DropdownMenuItem
-                  class="dropdown-menu-item dropdown-menu-item-danger"
-                  @select="handleDeleteClick(project)"
-                >
+                <DropdownMenuItem class="dropdown-menu-item dropdown-menu-item-danger"
+                  @select="handleDeleteClick(project)">
                   <svg class="menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                   </svg>
                   Delete Project
                 </DropdownMenuItem>
@@ -70,19 +58,11 @@
       </nav>
     </div>
 
-    <ConfirmDialog
-      ref="confirmDialogRef"
-      :title="`Delete '${projectToDelete?.name}'?`"
+    <ConfirmDialog ref="confirmDialogRef" :title="`Delete '${projectToDelete?.name}'?`"
       description="This will permanently delete the project and all its prompts. This action cannot be undone."
-      confirm-text="Delete"
-      @confirm="handleConfirmDelete"
-    />
+      confirm-text="Delete" @confirm="handleConfirmDelete" />
 
-    <ProjectDialog
-      ref="editDialogRef"
-      :project="projectToEdit"
-      @submit="handleUpdateProject"
-    />
+    <ProjectDialog ref="editDialogRef" :project="projectToEdit" @submit="handleUpdateProject" />
   </aside>
 </template>
 
@@ -216,7 +196,7 @@ onMounted(() => {
       @apply flex flex-col gap-1;
 
       .project-item {
-        @apply relative flex items-center gap-3 w-full px-3 py-2 rounded-lg bg-transparent border-none cursor-pointer text-left text-(--text-secondary) transition-colors duration-200;
+        @apply relative flex items-center gap-3 w-full pl-3 py-2 rounded-lg bg-transparent border-none cursor-pointer text-left text-(--text-secondary) transition-colors duration-200;
 
         &::before {
           @apply absolute left-0 top-1/2 w-1 h-1 rounded-full bg-transparent transition-colors duration-200;
