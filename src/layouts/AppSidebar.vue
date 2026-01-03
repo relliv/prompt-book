@@ -19,31 +19,70 @@
       </div>
 
       <nav class="projects-list">
-        <button
-          v-for="project in projects"
-          :key="project.id"
-          class="project-item"
-          :class="{ active: selectedProjectId === project.id }"
-          @click="handleProjectClick(project.id)"
-        >
-          <span class="project-icon">{{ project.icon }}</span>
-          <span class="project-name">{{ project.name }}</span>
-        </button>
+        <ContextMenuRoot v-for="project in projects" :key="project.id">
+          <ContextMenuTrigger as-child>
+            <button
+              class="project-item"
+              :class="{ active: selectedProjectId === project.id }"
+              @click="handleProjectClick(project.id)"
+            >
+              <span class="project-icon">{{ project.icon }}</span>
+              <span class="project-name">{{ project.name }}</span>
+            </button>
+          </ContextMenuTrigger>
+
+          <ContextMenuPortal>
+            <ContextMenuContent class="context-menu">
+              <ContextMenuItem
+                class="context-menu-item context-menu-item-danger"
+                @select="handleDeleteClick(project)"
+              >
+                <svg class="menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                Delete Project
+              </ContextMenuItem>
+            </ContextMenuContent>
+          </ContextMenuPortal>
+        </ContextMenuRoot>
       </nav>
     </div>
+
+    <ConfirmDialog
+      ref="confirmDialogRef"
+      :title="`Delete '${projectToDelete?.name}'?`"
+      description="This will permanently delete the project and all its prompts. This action cannot be undone."
+      confirm-text="Delete"
+      @confirm="handleConfirmDelete"
+    />
   </aside>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { storeToRefs } from 'pinia';
+import {
+  ContextMenuRoot,
+  ContextMenuTrigger,
+  ContextMenuPortal,
+  ContextMenuContent,
+  ContextMenuItem,
+} from 'reka-ui';
 import ProjectDialog, { type ProjectFormData } from '@app/components/ProjectDialog.vue';
+import ConfirmDialog from '@app/components/ConfirmDialog.vue';
 import { useProjectsStore } from '@app/shared/stores';
+import { useToast } from '@app/composables/useToast';
+import type { Project } from '@app/shared/models';
 
 const router = useRouter();
+const route = useRoute();
 const projectsStore = useProjectsStore();
+const toast = useToast();
 const { projects, selectedProjectId } = storeToRefs(projectsStore);
+
+const confirmDialogRef = ref<InstanceType<typeof ConfirmDialog> | null>(null);
+const projectToDelete = ref<Project | null>(null);
 
 const handleProjectClick = (projectId: number) => {
   router.push(`/project/${projectId}/prompts`);
@@ -56,6 +95,26 @@ const handleCreateProject = async (data: ProjectFormData) => {
     description: data.description || undefined,
   });
   router.push(`/project/${project.id}/prompts`);
+};
+
+const handleDeleteClick = (project: Project) => {
+  projectToDelete.value = project;
+  confirmDialogRef.value?.open();
+};
+
+const handleConfirmDelete = async () => {
+  if (!projectToDelete.value) return;
+
+  const deletedProjectId = projectToDelete.value.id;
+  await projectsStore.deleteProject(deletedProjectId);
+  toast.success('Project deleted');
+
+  // Navigate to home if the deleted project was currently open
+  if (route.params.id && Number(route.params.id) === deletedProjectId) {
+    router.push('/');
+  }
+
+  projectToDelete.value = null;
 };
 
 onMounted(() => {
@@ -123,6 +182,52 @@ onMounted(() => {
         }
       }
     }
+  }
+}
+</style>
+
+<style>
+@reference 'tailwindcss';
+
+.context-menu {
+  @apply min-w-48 rounded-lg p-1 border border-(--border-color) bg-(--bg-secondary) shadow-lg z-50;
+
+  animation: context-menu-show 150ms cubic-bezier(0.16, 1, 0.3, 1);
+
+  .context-menu-item {
+    @apply flex items-center gap-2 px-3 py-2 rounded-md text-sm cursor-pointer outline-none transition-colors duration-150;
+
+    color: var(--text-primary);
+
+    &:hover,
+    &[data-highlighted] {
+      background-color: var(--bg-tertiary);
+    }
+
+    &.context-menu-item-danger {
+      color: #f85149;
+
+      &:hover,
+      &[data-highlighted] {
+        background-color: rgb(248 81 73 / 10%);
+      }
+    }
+
+    .menu-icon {
+      @apply w-4 h-4;
+    }
+  }
+}
+
+@keyframes context-menu-show {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }
 </style>
