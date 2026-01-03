@@ -7,11 +7,15 @@
     <div class="sidebar-content">
       <div class="section-header">
         <span class="section-title">Projects</span>
-        <button class="add-button" aria-label="Add new project" @click="handleAddProject">
-          <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-          </svg>
-        </button>
+        <ProjectDialog @submit="handleCreateProject">
+          <template #trigger>
+            <button class="add-button" aria-label="Add new project">
+              <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+            </button>
+          </template>
+        </ProjectDialog>
       </div>
 
       <nav class="projects-list">
@@ -32,11 +36,13 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import ProjectDialog, { type ProjectFormData } from '@app/components/ProjectDialog.vue';
 
 interface Project {
   id: string;
   name: string;
   icon: string;
+  description?: string;
 }
 
 // Mock data - will be replaced with database data in future
@@ -53,9 +59,15 @@ const selectProject = (id: string) => {
   selectedProjectId.value = id;
 };
 
-const handleAddProject = () => {
-  // TODO: Implement add project functionality
-  console.log('Add new project clicked');
+const handleCreateProject = (data: ProjectFormData) => {
+  const newProject: Project = {
+    id: Date.now().toString(),
+    name: data.name,
+    icon: data.icon || '📁',
+    description: data.description,
+  };
+  projects.value.push(newProject);
+  selectedProjectId.value = newProject.id;
 };
 </script>
 
