@@ -37,6 +37,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     createProject: (input: CreateProjectInput) => api.createProject(input),
     updateProject: (input: UpdateProjectInput) => api.updateProject(input),
     deleteProject: (input: { id: number }) => api.deleteProject(input),
+    openProject: (input: { id: number }) => api.openProject(input),
   },
 
   // Additional platform info
@@ -53,6 +54,7 @@ export interface Project {
   icon: string | null;
   createdAt: Date;
   updatedAt: Date;
+  lastOpenedAt: Date | null;
 }
 
 // Type definitions for renderer process
@@ -64,6 +66,7 @@ export type ElectronAPI = {
     createProject: (input: CreateProjectInput) => Promise<Project>;
     updateProject: (input: UpdateProjectInput) => Promise<Project | null>;
     deleteProject: (input: { id: number }) => Promise<{ success: boolean }>;
+    openProject: (input: { id: number }) => Promise<Project | null>;
   };
   platform: NodeJS.Platform;
 };

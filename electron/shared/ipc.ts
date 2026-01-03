@@ -86,6 +86,20 @@ export const router = {
       await db.delete(projects).where(eq(projects.id, input.id));
       return { success: true };
     }),
+
+  // Open project (update lastOpenedAt)
+  openProject: tipc
+    .create()
+    .procedure.input<{ id: number }>()
+    .action(async ({ input }) => {
+      const db = getDatabase();
+      const result = await db
+        .update(projects)
+        .set({ lastOpenedAt: new Date() })
+        .where(eq(projects.id, input.id))
+        .returning();
+      return result[0] ?? null;
+    }),
 };
 
 export type AppRouter = typeof router;

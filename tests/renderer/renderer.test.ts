@@ -12,6 +12,7 @@ describe('Renderer Process', () => {
           createProject: vi.fn(),
           updateProject: vi.fn(),
           deleteProject: vi.fn(),
+          openProject: vi.fn(),
         },
         platform: 'darwin' as NodeJS.Platform,
       },
@@ -38,6 +39,7 @@ describe('Renderer Process', () => {
         description: null,
         createdAt: new Date(),
         updatedAt: new Date(),
+        lastOpenedAt: null,
       },
     ];
     mockGetProjects.mockResolvedValue(mockData);

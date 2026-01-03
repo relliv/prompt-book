@@ -33,4 +33,8 @@ export const projectService = {
   async delete(id: number): Promise<{ success: boolean }> {
     return window.electronAPI.api.deleteProject({ id });
   },
+
+  async open(id: number): Promise<Project | null> {
+    return window.electronAPI.api.openProject({ id });
+  },
 };

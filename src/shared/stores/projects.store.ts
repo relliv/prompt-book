@@ -83,8 +83,22 @@ export const useProjectsStore = defineStore('projects', () => {
     }
   }
 
-  function selectProject(id: number | null) {
+  async function selectProject(id: number | null) {
     selectedProjectId.value = id;
+
+    if (id !== null) {
+      try {
+        const updatedProject = await projectService.open(id);
+        if (updatedProject) {
+          const index = projects.value.findIndex(p => p.id === id);
+          if (index !== -1) {
+            projects.value[index] = updatedProject;
+          }
+        }
+      } catch (e) {
+        console.error('Failed to update lastOpenedAt:', e);
+      }
+    }
   }
 
   return {

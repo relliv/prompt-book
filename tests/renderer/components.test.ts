@@ -60,6 +60,13 @@ const createMockElectronAPI = () => ({
       description: null,
     }),
     deleteProject: vi.fn().mockResolvedValue({ success: true }),
+    openProject: vi.fn().mockResolvedValue({
+      id: 1,
+      name: 'Test Project',
+      icon: '📁',
+      description: null,
+      lastOpenedAt: new Date(),
+    }),
   },
   platform: 'darwin',
 });

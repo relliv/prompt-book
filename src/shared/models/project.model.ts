@@ -11,6 +11,7 @@ export const projects = sqliteTable('projects', {
   updatedAt: integer('updated_at', { mode: 'timestamp' })
     .notNull()
     .$defaultFn(() => new Date()),
+  lastOpenedAt: integer('last_opened_at', { mode: 'timestamp' }),
 });
 
 export type Project = typeof projects.$inferSelect;

@@ -50,9 +50,17 @@ const initializeTables = () => {
       description TEXT,
       icon TEXT DEFAULT '📁',
       created_at INTEGER NOT NULL DEFAULT (unixepoch()),
-      updated_at INTEGER NOT NULL DEFAULT (unixepoch())
+      updated_at INTEGER NOT NULL DEFAULT (unixepoch()),
+      last_opened_at INTEGER
     )
   `);
+
+  // Add last_opened_at column if it doesn't exist (migration for existing databases)
+  try {
+    sqlite.exec(`ALTER TABLE projects ADD COLUMN last_opened_at INTEGER`);
+  } catch {
+    // Column already exists, ignore error
+  }
 
   console.log('[Database] Tables initialized');
 };
