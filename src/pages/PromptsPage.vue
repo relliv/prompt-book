@@ -7,89 +7,146 @@
       </div>
       <div class="header-actions">
         <span class="prompt-count">{{ promptCount }} prompts</span>
-        <PromptDialog @submit="handleCreatePrompt">
+        <FeatureDialog @submit="handleCreateFeature">
           <template #trigger>
-            <button class="btn btn-primary">
+            <button class="btn btn-secondary">
               <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
               </svg>
-              New Prompt
+              New Feature
             </button>
           </template>
-        </PromptDialog>
+        </FeatureDialog>
       </div>
     </header>
 
     <div class="content">
-      <div v-if="isLoading" class="loading">Loading prompts...</div>
-      <div v-else-if="error" class="error">{{ error }}</div>
-      <div v-else-if="prompts.length === 0" class="empty">
-        <p>No prompts yet. Create your first prompt to get started.</p>
+      <div v-if="featuresLoading" class="loading">Loading features...</div>
+      <div v-else-if="features.length === 0" class="empty">
+        <p>No features yet. Create your first feature to get started.</p>
       </div>
-      <table v-else class="prompts-table">
-        <thead>
-          <tr>
-            <th class="col-prompt">Prompt</th>
-            <th class="col-copies">Copies</th>
-            <th class="col-created">Created</th>
-            <th class="col-updated">Updated</th>
-            <th class="col-actions">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="prompt in prompts" :key="prompt.id">
-            <td class="col-prompt">
-              <div class="prompt-text">{{ prompt.prompt }}</div>
-            </td>
-            <td class="col-copies">{{ prompt.copyCount }}</td>
-            <td class="col-created">{{ formatDate(prompt.createdAt) }}</td>
-            <td class="col-updated">{{ formatDate(prompt.updatedAt) }}</td>
-            <td class="col-actions">
-              <div class="action-buttons">
-                <button class="action-btn" aria-label="Copy prompt" @click="handleCopyPrompt(prompt)">
-                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+      <template v-else>
+        <TabsRoot v-model="selectedFeatureId" class="tabs">
+          <div class="tabs-header">
+            <TabsList class="tabs-list">
+              <TabsTrigger
+                v-for="feature in features"
+                :key="feature.id"
+                :value="String(feature.id)"
+                class="tabs-trigger"
+              >
+                {{ feature.name }}
+              </TabsTrigger>
+            </TabsList>
+            <PromptDialog
+              v-if="selectedFeatureId"
+              @submit="handleCreatePrompt"
+            >
+              <template #trigger>
+                <button class="btn btn-primary btn-sm">
+                  <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                   </svg>
+                  New Prompt
                 </button>
-                <PromptDialog :prompt="prompt" @submit="handleUpdatePrompt">
-                  <template #trigger>
-                    <button class="action-btn" aria-label="Edit prompt">
-                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                      </svg>
-                    </button>
-                  </template>
-                </PromptDialog>
-                <button class="action-btn action-btn-danger" aria-label="Delete prompt" @click="handleDeletePrompt(prompt.id)">
-                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
-                </button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+              </template>
+            </PromptDialog>
+          </div>
+
+          <TabsContent
+            v-for="feature in features"
+            :key="feature.id"
+            :value="String(feature.id)"
+            class="tabs-content"
+          >
+            <div v-if="isLoading" class="loading">Loading prompts...</div>
+            <div v-else-if="error" class="error">{{ error }}</div>
+            <div v-else-if="featurePrompts.length === 0" class="empty-prompts">
+              <p>No prompts in this feature yet.</p>
+            </div>
+            <table v-else class="prompts-table">
+              <thead>
+                <tr>
+                  <th class="col-prompt">Prompt</th>
+                  <th class="col-copies">Copies</th>
+                  <th class="col-created">Created</th>
+                  <th class="col-updated">Updated</th>
+                  <th class="col-actions">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="prompt in featurePrompts" :key="prompt.id">
+                  <td class="col-prompt">
+                    <div class="prompt-text">{{ prompt.prompt }}</div>
+                  </td>
+                  <td class="col-copies">{{ prompt.copyCount }}</td>
+                  <td class="col-created">{{ formatDate(prompt.createdAt) }}</td>
+                  <td class="col-updated">{{ formatDate(prompt.updatedAt) }}</td>
+                  <td class="col-actions">
+                    <div class="action-buttons">
+                      <button class="action-btn" aria-label="Copy prompt" @click="handleCopyPrompt(prompt)">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                      </button>
+                      <PromptDialog :prompt="prompt" @submit="handleUpdatePrompt">
+                        <template #trigger>
+                          <button class="action-btn" aria-label="Edit prompt">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                          </button>
+                        </template>
+                      </PromptDialog>
+                      <button class="action-btn action-btn-danger" aria-label="Delete prompt" @click="handleDeletePrompt(prompt.id)">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </TabsContent>
+        </TabsRoot>
+      </template>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { storeToRefs } from 'pinia';
+import { TabsRoot, TabsList, TabsTrigger, TabsContent } from 'reka-ui';
 import PromptDialog from '@app/components/PromptDialog.vue';
-import { useProjectsStore, usePromptsStore } from '@app/shared/stores';
+import FeatureDialog from '@app/components/FeatureDialog.vue';
+import {
+  useProjectsStore,
+  usePromptsStore,
+  useFeaturesStore,
+} from '@app/shared/stores';
 import { useToast } from '@app/composables/useToast';
 import type { Prompt } from '@app/shared/models';
 
 const route = useRoute();
 const projectsStore = useProjectsStore();
 const promptsStore = usePromptsStore();
+const featuresStore = useFeaturesStore();
 const toast = useToast();
 
 const { selectedProject } = storeToRefs(projectsStore);
 const { prompts, promptCount, isLoading, error } = storeToRefs(promptsStore);
+const { features, isLoading: featuresLoading } = storeToRefs(featuresStore);
+
+const selectedFeatureId = ref<string>('');
+
+const featurePrompts = computed(() => {
+  if (!selectedFeatureId.value) return [];
+  const featureId = Number(selectedFeatureId.value);
+  return prompts.value.filter(p => p.featureId === featureId);
+});
 
 const formatDate = (date: Date) => {
   return new Date(date).toLocaleDateString('en-US', {
@@ -99,23 +156,42 @@ const formatDate = (date: Date) => {
   });
 };
 
-const loadPrompts = async (projectId: number) => {
+const loadData = async (projectId: number) => {
   await projectsStore.selectProject(projectId);
+  await featuresStore.fetchFeatures(projectId);
   await promptsStore.fetchPrompts(projectId);
+
+  // Select first feature by default
+  if (features.value.length > 0 && !selectedFeatureId.value) {
+    selectedFeatureId.value = String(features.value[0].id);
+  }
+};
+
+const handleCreateFeature = async (name: string) => {
+  const feature = await featuresStore.createFeature({ name });
+  selectedFeatureId.value = String(feature.id);
+  toast.success('Feature created');
 };
 
 const handleCreatePrompt = async (promptText: string) => {
-  await promptsStore.createPrompt({ prompt: promptText });
+  if (!selectedFeatureId.value) return;
+  await promptsStore.createPrompt({
+    featureId: Number(selectedFeatureId.value),
+    prompt: promptText,
+  });
+  toast.success('Prompt created');
 };
 
 const handleUpdatePrompt = async (promptText: string, promptId?: number) => {
   if (promptId) {
     await promptsStore.updatePrompt({ id: promptId, prompt: promptText });
+    toast.success('Prompt updated');
   }
 };
 
 const handleDeletePrompt = async (id: number) => {
   await promptsStore.deletePrompt(id);
+  toast.success('Prompt deleted');
 };
 
 const handleCopyPrompt = async (prompt: Prompt) => {
@@ -127,7 +203,7 @@ const handleCopyPrompt = async (prompt: Prompt) => {
 onMounted(() => {
   const projectId = Number(route.params.id);
   if (projectId) {
-    loadPrompts(projectId);
+    loadData(projectId);
   }
 });
 
@@ -135,7 +211,8 @@ watch(
   () => route.params.id,
   newId => {
     if (newId) {
-      loadPrompts(Number(newId));
+      selectedFeatureId.value = '';
+      loadData(Number(newId));
     }
   }
 );
@@ -168,36 +245,85 @@ watch(
       .prompt-count {
         @apply text-sm text-(--text-secondary);
       }
+    }
+  }
 
-      .btn {
-        @apply flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm cursor-pointer border-none transition-colors duration-200;
+  .btn {
+    @apply flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm cursor-pointer border-none transition-colors duration-200;
 
-        .icon {
-          @apply w-4 h-4;
-        }
+    .icon {
+      @apply w-4 h-4;
+    }
 
-        &.btn-primary {
-          @apply bg-(--accent-color) text-white;
+    &.btn-primary {
+      @apply bg-(--accent-color) text-white;
 
-          &:hover {
-            @apply bg-(--accent-hover);
-          }
-        }
+      &:hover {
+        @apply bg-(--accent-hover);
       }
+    }
+
+    &.btn-secondary {
+      @apply bg-(--bg-tertiary) text-(--text-primary);
+
+      &:hover {
+        @apply bg-(--border-color);
+      }
+    }
+
+    &.btn-sm {
+      @apply px-3 py-1.5 text-xs;
     }
   }
 
   .content {
-    @apply flex-1 overflow-auto p-6;
+    @apply flex-1 overflow-auto;
 
     .loading,
     .error,
     .empty {
-      @apply flex items-center justify-center h-full text-(--text-secondary);
+      @apply flex items-center justify-center h-full text-(--text-secondary) p-6;
     }
 
     .error {
       @apply text-red-500;
+    }
+  }
+
+  .tabs {
+    @apply flex flex-col h-full;
+
+    .tabs-header {
+      @apply flex items-center justify-between px-6 py-3 border-b border-(--border-color) bg-(--bg-secondary);
+    }
+
+    .tabs-list {
+      @apply flex items-center gap-1;
+    }
+
+    .tabs-trigger {
+      @apply px-4 py-2 rounded-lg text-sm font-medium cursor-pointer border-none transition-colors duration-200;
+
+      background-color: transparent;
+      color: var(--text-secondary);
+
+      &:hover {
+        background-color: var(--bg-tertiary);
+        color: var(--text-primary);
+      }
+
+      &[data-state='active'] {
+        background-color: var(--accent-color);
+        color: white;
+      }
+    }
+
+    .tabs-content {
+      @apply flex-1 overflow-auto p-6;
+
+      .empty-prompts {
+        @apply flex items-center justify-center h-32 text-(--text-secondary);
+      }
     }
   }
 
