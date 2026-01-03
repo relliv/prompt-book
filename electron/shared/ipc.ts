@@ -21,11 +21,13 @@ interface UpdateProjectInput {
 interface CreatePromptInput {
   projectId: number;
   featureId: number;
+  title: string;
   prompt: string;
 }
 
 interface UpdatePromptInput {
   id: number;
+  title: string;
   prompt: string;
 }
 
@@ -164,6 +166,7 @@ export const router = {
         .values({
           projectId: input.projectId,
           featureId: input.featureId,
+          title: input.title,
           prompt: input.prompt,
         })
         .returning();
@@ -181,6 +184,7 @@ export const router = {
       const result = await db
         .update(prompts)
         .set({
+          title: input.title,
           prompt: input.prompt,
           updatedAt: new Date(),
         })

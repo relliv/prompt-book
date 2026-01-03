@@ -10,6 +10,7 @@ export const prompts = sqliteTable('project_prompts', {
   featureId: integer('feature_id')
     .notNull()
     .references(() => features.id, { onDelete: 'cascade' }),
+  title: text('title').notNull(),
   prompt: text('prompt').notNull(),
   copyCount: integer('copy_count').notNull().default(0),
   createdAt: integer('created_at', { mode: 'timestamp' })

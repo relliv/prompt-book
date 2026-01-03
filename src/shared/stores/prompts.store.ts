@@ -41,6 +41,7 @@ export const usePromptsStore = defineStore('prompts', () => {
       const newPrompt = await promptService.create({
         projectId: currentProjectId.value,
         featureId: input.featureId,
+        title: input.title,
         prompt: input.prompt,
       });
       prompts.value.unshift(newPrompt);

@@ -67,7 +67,7 @@
             <table v-else class="prompts-table">
               <thead>
                 <tr>
-                  <th class="col-prompt">Prompt</th>
+                  <th class="col-title">Title</th>
                   <th class="col-copies">Copies</th>
                   <th class="col-created">Created</th>
                   <th class="col-updated">Updated</th>
@@ -76,8 +76,8 @@
               </thead>
               <tbody>
                 <tr v-for="prompt in featurePrompts" :key="prompt.id">
-                  <td class="col-prompt">
-                    <div class="prompt-text">{{ prompt.prompt }}</div>
+                  <td class="col-title">
+                    <div class="prompt-title">{{ prompt.title }}</div>
                   </td>
                   <td class="col-copies">{{ prompt.copyCount }}</td>
                   <td class="col-created">{{ formatDate(prompt.createdAt) }}</td>
@@ -177,18 +177,19 @@ const handleCreateFeature = async (name: string) => {
   toast.success('Feature created');
 };
 
-const handleCreatePrompt = async (promptText: string) => {
+const handleCreatePrompt = async (title: string, promptText: string) => {
   if (!selectedFeatureId.value) return;
   await promptsStore.createPrompt({
     featureId: Number(selectedFeatureId.value),
+    title,
     prompt: promptText,
   });
   toast.success('Prompt created');
 };
 
-const handleUpdatePrompt = async (promptText: string, promptId?: number) => {
+const handleUpdatePrompt = async (title: string, promptText: string, promptId?: number) => {
   if (promptId) {
-    await promptsStore.updatePrompt({ id: promptId, prompt: promptText });
+    await promptsStore.updatePrompt({ id: promptId, title, prompt: promptText });
     toast.success('Prompt updated');
   }
 };
@@ -363,11 +364,11 @@ watch(
       }
     }
 
-    .col-prompt {
+    .col-title {
       @apply w-auto;
 
-      .prompt-text {
-        @apply line-clamp-2;
+      .prompt-title {
+        @apply font-medium;
       }
     }
 

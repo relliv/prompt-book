@@ -29,11 +29,13 @@ interface UpdateProjectInput {
 interface CreatePromptInput {
   projectId: number;
   featureId: number;
+  title: string;
   prompt: string;
 }
 
 interface UpdatePromptInput {
   id: number;
+  title: string;
   prompt: string;
 }
 
@@ -105,6 +107,7 @@ export interface Prompt {
   id: number;
   projectId: number;
   featureId: number;
+  title: string;
   prompt: string;
   copyCount: number;
   createdAt: Date;

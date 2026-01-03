@@ -41,7 +41,20 @@
         </div>
 
         <form class="dialog-form" @submit.prevent="handleSubmit">
-          <div class="form-field">
+          <div class="form-field title-field">
+            <label for="prompt-title" class="form-label">Title</label>
+            <input
+              id="prompt-title"
+              v-model="promptTitle"
+              type="text"
+              class="form-input"
+              placeholder="Enter a title for your prompt"
+              required
+            />
+          </div>
+
+          <div class="form-field editor-field">
+            <label class="form-label">Prompt</label>
             <div ref="editorContainerRef" class="editor-container" />
           </div>
 
@@ -49,7 +62,7 @@
             <DialogClose as-child>
               <button type="button" class="btn btn-secondary">Cancel</button>
             </DialogClose>
-            <button type="submit" class="btn btn-primary" :disabled="!promptText.trim()">
+            <button type="submit" class="btn btn-primary" :disabled="!promptTitle.trim() || !promptText.trim()">
               {{ isEditMode ? 'Save Changes' : 'Create Prompt' }}
             </button>
           </div>
@@ -81,11 +94,12 @@ interface Props {
 const props = defineProps<Props>();
 
 const emit = defineEmits<{
-  submit: [promptText: string, promptId?: number];
+  submit: [title: string, promptText: string, promptId?: number];
 }>();
 
 const isOpen = ref(false);
 const isFullScreen = ref(false);
+const promptTitle = ref('');
 const promptText = ref('');
 const editorContainerRef = ref<HTMLDivElement | null>(null);
 const editorInstance = shallowRef<monaco.editor.IStandaloneCodeEditor | null>(
@@ -153,6 +167,7 @@ const disposeEditor = () => {
 
 watch(isOpen, async open => {
   if (open) {
+    promptTitle.value = props.prompt?.title ?? '';
     promptText.value = props.prompt?.prompt ?? '';
     isFullScreen.value = true;
     await nextTick();
@@ -166,6 +181,7 @@ watch(
   () => props.prompt,
   newPrompt => {
     if (isOpen.value && newPrompt) {
+      promptTitle.value = newPrompt.title;
       promptText.value = newPrompt.prompt;
       editorInstance.value?.setValue(newPrompt.prompt);
     }
@@ -174,9 +190,9 @@ watch(
 );
 
 const handleSubmit = () => {
-  if (!promptText.value.trim()) return;
+  if (!promptTitle.value.trim() || !promptText.value.trim()) return;
 
-  emit('submit', promptText.value.trim(), props.prompt?.id);
+  emit('submit', promptTitle.value.trim(), promptText.value.trim(), props.prompt?.id);
   isOpen.value = false;
 };
 
@@ -262,10 +278,34 @@ defineExpose({ open, close });
   }
 
   .dialog-form {
-    @apply flex flex-col flex-1 p-6 pt-4 overflow-hidden;
+    @apply flex flex-col flex-1 p-6 pt-4 overflow-hidden gap-4;
 
     .form-field {
-      @apply flex flex-col flex-1 min-h-0;
+      @apply flex flex-col;
+
+      .form-label {
+        @apply text-sm font-medium text-(--text-primary) mb-1.5;
+      }
+
+      .form-input {
+        @apply w-full px-3 py-2 rounded-lg border border-(--border-color) bg-(--bg-primary) text-(--text-primary) text-sm transition-all duration-200;
+
+        &::placeholder {
+          @apply text-(--text-tertiary);
+        }
+
+        &:focus {
+          @apply outline-none border-(--accent-color) ring-2 ring-(--accent-color)/20;
+        }
+      }
+    }
+
+    .title-field {
+      @apply flex-none;
+    }
+
+    .editor-field {
+      @apply flex-1 min-h-0;
 
       .editor-container {
         @apply w-full flex-1 rounded-lg border border-(--border-color) overflow-hidden;

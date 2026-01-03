@@ -3,11 +3,13 @@ import type { Prompt } from '@app/shared/models';
 export interface CreatePromptInput {
   projectId: number;
   featureId: number;
+  title: string;
   prompt: string;
 }
 
 export interface UpdatePromptInput {
   id: number;
+  title: string;
   prompt: string;
 }
 
