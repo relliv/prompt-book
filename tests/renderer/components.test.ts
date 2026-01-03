@@ -47,6 +47,35 @@ const createMockElectronAPI = () => ({
       success: true,
       message: 'Data saved',
     }),
+    // Project API mocks
+    getProjects: vi.fn().mockResolvedValue([
+      { id: 1, name: 'Test Project 1', icon: '📁', description: null },
+      {
+        id: 2,
+        name: 'Test Project 2',
+        icon: '💻',
+        description: 'A test project',
+      },
+    ]),
+    getProject: vi.fn().mockResolvedValue({
+      id: 1,
+      name: 'Test Project',
+      icon: '📁',
+      description: null,
+    }),
+    createProject: vi.fn().mockResolvedValue({
+      id: 3,
+      name: 'New Project',
+      icon: '📁',
+      description: null,
+    }),
+    updateProject: vi.fn().mockResolvedValue({
+      id: 1,
+      name: 'Updated Project',
+      icon: '📁',
+      description: null,
+    }),
+    deleteProject: vi.fn().mockResolvedValue({ success: true }),
   },
   platform: 'darwin',
 });
@@ -90,8 +119,10 @@ describe('Vue Components', () => {
       global: { plugins: [router] },
     });
 
-    const projectItems = wrapper.findAll('.project-item');
-    expect(projectItems.length).toBeGreaterThan(0);
+    // Wait for async loadProjects to complete
+    await vi.waitFor(() => {
+      expect(wrapper.findAll('.project-item').length).toBeGreaterThan(0);
+    });
 
     const addButton = wrapper.find('.add-button');
     expect(addButton.exists()).toBe(true);

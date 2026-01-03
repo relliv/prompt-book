@@ -35,40 +35,53 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import ProjectDialog, { type ProjectFormData } from '@app/components/ProjectDialog.vue';
 
 interface Project {
-  id: string;
+  id: number;
   name: string;
-  icon: string;
-  description?: string;
+  icon: string | null;
+  description: string | null;
 }
 
-// Mock data - will be replaced with database data in future
-const projects = ref<Project[]>([
-  { id: '1', name: 'Marketing Prompts', icon: '📢' },
-  { id: '2', name: 'Code Assistant', icon: '💻' },
-  { id: '3', name: 'Writing Helper', icon: '✍️' },
-  { id: '4', name: 'Data Analysis', icon: '📊' },
-]);
+const projects = ref<Project[]>([]);
+const selectedProjectId = ref<number | null>(null);
+const isLoading = ref(true);
 
-const selectedProjectId = ref<string | null>(null);
+const loadProjects = async () => {
+  try {
+    isLoading.value = true;
+    const result = await window.electronAPI.api.getProjects();
+    projects.value = result;
+  } catch (error) {
+    console.error('Failed to load projects:', error);
+  } finally {
+    isLoading.value = false;
+  }
+};
 
-const selectProject = (id: string) => {
+const selectProject = (id: number) => {
   selectedProjectId.value = id;
 };
 
-const handleCreateProject = (data: ProjectFormData) => {
-  const newProject: Project = {
-    id: Date.now().toString(),
-    name: data.name,
-    icon: data.icon || '📁',
-    description: data.description,
-  };
-  projects.value.push(newProject);
-  selectedProjectId.value = newProject.id;
+const handleCreateProject = async (data: ProjectFormData) => {
+  try {
+    const newProject = await window.electronAPI.api.createProject({
+      name: data.name,
+      icon: data.icon || '📁',
+      description: data.description || undefined,
+    });
+    projects.value.push(newProject);
+    selectedProjectId.value = newProject.id;
+  } catch (error) {
+    console.error('Failed to create project:', error);
+  }
 };
+
+onMounted(() => {
+  loadProjects();
+});
 </script>
 
 <style scoped>

@@ -11,6 +11,20 @@ const api = createClient<AppRouter>({
 
 console.log('[Preload] API client created:', !!api);
 
+// Project input types for renderer
+interface CreateProjectInput {
+  name: string;
+  description?: string;
+  icon?: string;
+}
+
+interface UpdateProjectInput {
+  id: number;
+  name?: string;
+  description?: string;
+  icon?: string;
+}
+
 // Expose protected methods that allow the renderer process to use
 // the ipcRenderer without exposing the entire object
 // Note: We expose each method individually because Proxy objects cannot be cloned by contextBridge
@@ -21,6 +35,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
     saveData: (input: { key: string; value: unknown }) => api.saveData(input),
     getSystemInfo: () => api.getSystemInfo(),
     getVersions: () => api.getVersions(),
+
+    // Project CRUD operations
+    getProjects: () => api.getProjects(),
+    getProject: (input: { id: number }) => api.getProject(input),
+    createProject: (input: CreateProjectInput) => api.createProject(input),
+    updateProject: (input: UpdateProjectInput) => api.updateProject(input),
+    deleteProject: (input: { id: number }) => api.deleteProject(input),
   },
 
   // Additional platform info
@@ -28,6 +49,16 @@ contextBridge.exposeInMainWorld('electronAPI', {
 });
 
 console.log('[Preload] electronAPI exposed to main world');
+
+// Project type for renderer
+export interface Project {
+  id: number;
+  name: string;
+  description: string | null;
+  icon: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 // Type definitions for renderer process
 export type ElectronAPI = {
@@ -48,6 +79,12 @@ export type ElectronAPI = {
       chrome: string;
       node: string;
     }>;
+    // Project operations
+    getProjects: () => Promise<Project[]>;
+    getProject: (input: { id: number }) => Promise<Project | null>;
+    createProject: (input: CreateProjectInput) => Promise<Project>;
+    updateProject: (input: UpdateProjectInput) => Promise<Project | null>;
+    deleteProject: (input: { id: number }) => Promise<{ success: boolean }>;
   };
   platform: NodeJS.Platform;
 };
