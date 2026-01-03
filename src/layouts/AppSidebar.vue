@@ -46,6 +46,15 @@
             <DropdownMenuPortal>
               <DropdownMenuContent class="dropdown-menu" :side-offset="4" align="start">
                 <DropdownMenuItem
+                  class="dropdown-menu-item"
+                  @select="handleEditClick(project)"
+                >
+                  <svg class="menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  Edit Project
+                </DropdownMenuItem>
+                <DropdownMenuItem
                   class="dropdown-menu-item dropdown-menu-item-danger"
                   @select="handleDeleteClick(project)"
                 >
@@ -67,6 +76,12 @@
       description="This will permanently delete the project and all its prompts. This action cannot be undone."
       confirm-text="Delete"
       @confirm="handleConfirmDelete"
+    />
+
+    <ProjectDialog
+      ref="editDialogRef"
+      :project="projectToEdit"
+      @submit="handleUpdateProject"
     />
   </aside>
 </template>
@@ -95,7 +110,9 @@ const toast = useToast();
 const { projects, selectedProjectId } = storeToRefs(projectsStore);
 
 const confirmDialogRef = ref<InstanceType<typeof ConfirmDialog> | null>(null);
+const editDialogRef = ref<InstanceType<typeof ProjectDialog> | null>(null);
 const projectToDelete = ref<Project | null>(null);
+const projectToEdit = ref<ProjectFormData | undefined>(undefined);
 
 const handleProjectClick = (projectId: number) => {
   router.push(`/project/${projectId}/prompts`);
@@ -128,6 +145,29 @@ const handleConfirmDelete = async () => {
   }
 
   projectToDelete.value = null;
+};
+
+const handleEditClick = (project: Project) => {
+  projectToEdit.value = {
+    id: String(project.id),
+    name: project.name,
+    icon: project.icon,
+    description: project.description || '',
+  };
+  editDialogRef.value?.open();
+};
+
+const handleUpdateProject = async (data: ProjectFormData) => {
+  if (!data.id) return;
+
+  await projectsStore.updateProject({
+    id: Number(data.id),
+    name: data.name,
+    icon: data.icon || '📁',
+    description: data.description || undefined,
+  });
+  toast.success('Project updated');
+  projectToEdit.value = undefined;
 };
 
 onMounted(() => {

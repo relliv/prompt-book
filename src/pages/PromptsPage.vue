@@ -6,7 +6,6 @@
         <h1 class="project-name">{{ selectedProject?.name }}</h1>
       </div>
       <div class="header-actions">
-        <span class="prompt-count">{{ promptCount }} prompts</span>
         <FeatureDialog @submit="handleCreateFeature">
           <template #trigger>
             <button class="btn btn-secondary">
@@ -138,7 +137,7 @@ const featuresStore = useFeaturesStore();
 const toast = useToast();
 
 const { selectedProject } = storeToRefs(projectsStore);
-const { prompts, promptCount, isLoading, error } = storeToRefs(promptsStore);
+const { prompts, isLoading, error } = storeToRefs(promptsStore);
 const { features, isLoading: featuresLoading } = storeToRefs(featuresStore);
 
 const selectedFeatureId = ref<string>('');
@@ -246,10 +245,6 @@ watch(
 
     .header-actions {
       @apply flex items-center gap-4;
-
-      .prompt-count {
-        @apply text-sm text-(--text-secondary);
-      }
     }
   }
 
@@ -299,7 +294,7 @@ watch(
     @apply flex flex-col h-full;
 
     .tabs-header {
-      @apply flex items-center justify-between px-6 py-3 border-b border-(--border-color) bg-(--bg-secondary);
+      @apply flex items-center justify-between px-6 py-3 border-b border-(--border-color);
     }
 
     .tabs-list {
