@@ -7,6 +7,16 @@
       </div>
       <div class="header-actions">
         <span class="prompt-count">{{ promptCount }} prompts</span>
+        <PromptDialog @submit="handleCreatePrompt">
+          <template #trigger>
+            <button class="btn btn-primary">
+              <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              New Prompt
+            </button>
+          </template>
+        </PromptDialog>
       </div>
     </header>
 
@@ -23,6 +33,7 @@
             <th class="col-copies">Copies</th>
             <th class="col-created">Created</th>
             <th class="col-updated">Updated</th>
+            <th class="col-actions">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -33,6 +44,24 @@
             <td class="col-copies">{{ prompt.copyCount }}</td>
             <td class="col-created">{{ formatDate(prompt.createdAt) }}</td>
             <td class="col-updated">{{ formatDate(prompt.updatedAt) }}</td>
+            <td class="col-actions">
+              <div class="action-buttons">
+                <PromptDialog :prompt="prompt" @submit="handleUpdatePrompt">
+                  <template #trigger>
+                    <button class="action-btn" aria-label="Edit prompt">
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                    </button>
+                  </template>
+                </PromptDialog>
+                <button class="action-btn action-btn-danger" aria-label="Delete prompt" @click="handleDeletePrompt(prompt.id)">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -44,6 +73,7 @@
 import { onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { storeToRefs } from 'pinia';
+import PromptDialog from '@app/components/PromptDialog.vue';
 import { useProjectsStore, usePromptsStore } from '@app/shared/stores';
 
 const route = useRoute();
@@ -64,6 +94,20 @@ const formatDate = (date: Date) => {
 const loadPrompts = async (projectId: number) => {
   await projectsStore.selectProject(projectId);
   await promptsStore.fetchPrompts(projectId);
+};
+
+const handleCreatePrompt = async (promptText: string) => {
+  await promptsStore.createPrompt({ prompt: promptText });
+};
+
+const handleUpdatePrompt = async (promptText: string, promptId?: number) => {
+  if (promptId) {
+    await promptsStore.updatePrompt({ id: promptId, prompt: promptText });
+  }
+};
+
+const handleDeletePrompt = async (id: number) => {
+  await promptsStore.deletePrompt(id);
 };
 
 onMounted(() => {
@@ -109,6 +153,22 @@ watch(
 
       .prompt-count {
         @apply text-sm text-(--text-secondary);
+      }
+
+      .btn {
+        @apply flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm cursor-pointer border-none transition-colors duration-200;
+
+        .icon {
+          @apply w-4 h-4;
+        }
+
+        &.btn-primary {
+          @apply bg-(--accent-color) text-white;
+
+          &:hover {
+            @apply bg-(--accent-hover);
+          }
+        }
       }
     }
   }
@@ -166,6 +226,30 @@ watch(
     .col-created,
     .col-updated {
       @apply w-32 text-(--text-secondary);
+    }
+
+    .col-actions {
+      @apply w-24;
+
+      .action-buttons {
+        @apply flex items-center gap-1;
+
+        .action-btn {
+          @apply w-8 h-8 flex items-center justify-center rounded-lg bg-transparent border-none cursor-pointer text-(--text-tertiary) transition-colors duration-200;
+
+          &:hover {
+            @apply bg-(--bg-tertiary) text-(--text-primary);
+          }
+
+          &.action-btn-danger:hover {
+            @apply bg-red-500/10 text-red-500;
+          }
+
+          svg {
+            @apply w-4 h-4;
+          }
+        }
+      }
     }
   }
 }
