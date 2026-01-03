@@ -62,6 +62,18 @@ const initializeTables = () => {
     // Column already exists, ignore error
   }
 
+  // Create project_prompts table if it doesn't exist
+  sqlite.exec(`
+    CREATE TABLE IF NOT EXISTS project_prompts (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+      prompt TEXT NOT NULL,
+      copy_count INTEGER NOT NULL DEFAULT 0,
+      created_at INTEGER NOT NULL DEFAULT (unixepoch()),
+      updated_at INTEGER NOT NULL DEFAULT (unixepoch())
+    )
+  `);
+
   console.log('[Database] Tables initialized');
 };
 

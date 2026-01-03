@@ -1,7 +1,7 @@
 import { tipc } from '@egoist/tipc/main';
-import { eq } from 'drizzle-orm';
+import { eq, desc } from 'drizzle-orm';
 import { getDatabase } from '@main/database';
-import { projects } from '@app/shared/models';
+import { projects, prompts } from '@app/shared/models';
 
 // Project input types
 interface CreateProjectInput {
@@ -15,6 +15,17 @@ interface UpdateProjectInput {
   name?: string;
   description?: string;
   icon?: string;
+}
+
+// Prompt input types
+interface CreatePromptInput {
+  projectId: number;
+  prompt: string;
+}
+
+interface UpdatePromptInput {
+  id: number;
+  prompt: string;
 }
 
 // Define your IPC routes with full type safety
@@ -97,6 +108,101 @@ export const router = {
         .update(projects)
         .set({ lastOpenedAt: new Date() })
         .where(eq(projects.id, input.id))
+        .returning();
+      return result[0] ?? null;
+    }),
+
+  // ==================== Prompt CRUD Operations ====================
+
+  // Get all prompts for a project
+  getPromptsByProject: tipc
+    .create()
+    .procedure.input<{ projectId: number }>()
+    .action(async ({ input }) => {
+      const db = getDatabase();
+      const result = await db
+        .select()
+        .from(prompts)
+        .where(eq(prompts.projectId, input.projectId))
+        .orderBy(desc(prompts.createdAt));
+      return result;
+    }),
+
+  // Get single prompt by ID
+  getPrompt: tipc
+    .create()
+    .procedure.input<{ id: number }>()
+    .action(async ({ input }) => {
+      const db = getDatabase();
+      const result = await db
+        .select()
+        .from(prompts)
+        .where(eq(prompts.id, input.id));
+      return result[0] ?? null;
+    }),
+
+  // Create new prompt
+  createPrompt: tipc
+    .create()
+    .procedure.input<CreatePromptInput>()
+    .action(async ({ input }) => {
+      const db = getDatabase();
+      const result = await db
+        .insert(prompts)
+        .values({
+          projectId: input.projectId,
+          prompt: input.prompt,
+        })
+        .returning();
+      const created = result[0];
+      if (!created) throw new Error('Failed to create prompt');
+      return created;
+    }),
+
+  // Update prompt
+  updatePrompt: tipc
+    .create()
+    .procedure.input<UpdatePromptInput>()
+    .action(async ({ input }) => {
+      const db = getDatabase();
+      const result = await db
+        .update(prompts)
+        .set({
+          prompt: input.prompt,
+          updatedAt: new Date(),
+        })
+        .where(eq(prompts.id, input.id))
+        .returning();
+      return result[0] ?? null;
+    }),
+
+  // Delete prompt
+  deletePrompt: tipc
+    .create()
+    .procedure.input<{ id: number }>()
+    .action(async ({ input }) => {
+      const db = getDatabase();
+      await db.delete(prompts).where(eq(prompts.id, input.id));
+      return { success: true };
+    }),
+
+  // Increment copy count
+  incrementPromptCopyCount: tipc
+    .create()
+    .procedure.input<{ id: number }>()
+    .action(async ({ input }) => {
+      const db = getDatabase();
+      // Get current prompt
+      const current = await db
+        .select()
+        .from(prompts)
+        .where(eq(prompts.id, input.id));
+      if (!current[0]) return null;
+
+      const result = await db
+        .update(prompts)
+        .set({ copyCount: current[0].copyCount + 1 })
+        .where(eq(prompts.id, input.id))
         .returning();
       return result[0] ?? null;
     }),

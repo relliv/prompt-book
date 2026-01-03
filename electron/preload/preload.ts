@@ -25,6 +25,17 @@ interface UpdateProjectInput {
   icon?: string;
 }
 
+// Prompt input types for renderer
+interface CreatePromptInput {
+  projectId: number;
+  prompt: string;
+}
+
+interface UpdatePromptInput {
+  id: number;
+  prompt: string;
+}
+
 // Expose protected methods that allow the renderer process to use
 // the ipcRenderer without exposing the entire object
 // Note: We expose each method individually because Proxy objects cannot be cloned by contextBridge
@@ -38,6 +49,16 @@ contextBridge.exposeInMainWorld('electronAPI', {
     updateProject: (input: UpdateProjectInput) => api.updateProject(input),
     deleteProject: (input: { id: number }) => api.deleteProject(input),
     openProject: (input: { id: number }) => api.openProject(input),
+
+    // Prompt CRUD operations
+    getPromptsByProject: (input: { projectId: number }) =>
+      api.getPromptsByProject(input),
+    getPrompt: (input: { id: number }) => api.getPrompt(input),
+    createPrompt: (input: CreatePromptInput) => api.createPrompt(input),
+    updatePrompt: (input: UpdatePromptInput) => api.updatePrompt(input),
+    deletePrompt: (input: { id: number }) => api.deletePrompt(input),
+    incrementPromptCopyCount: (input: { id: number }) =>
+      api.incrementPromptCopyCount(input),
   },
 
   // Additional platform info
@@ -57,6 +78,16 @@ export interface Project {
   lastOpenedAt: Date | null;
 }
 
+// Prompt type for renderer
+export interface Prompt {
+  id: number;
+  projectId: number;
+  prompt: string;
+  copyCount: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 // Type definitions for renderer process
 export type ElectronAPI = {
   api: {
@@ -67,6 +98,13 @@ export type ElectronAPI = {
     updateProject: (input: UpdateProjectInput) => Promise<Project | null>;
     deleteProject: (input: { id: number }) => Promise<{ success: boolean }>;
     openProject: (input: { id: number }) => Promise<Project | null>;
+    // Prompt operations
+    getPromptsByProject: (input: { projectId: number }) => Promise<Prompt[]>;
+    getPrompt: (input: { id: number }) => Promise<Prompt | null>;
+    createPrompt: (input: CreatePromptInput) => Promise<Prompt>;
+    updatePrompt: (input: UpdatePromptInput) => Promise<Prompt | null>;
+    deletePrompt: (input: { id: number }) => Promise<{ success: boolean }>;
+    incrementPromptCopyCount: (input: { id: number }) => Promise<Prompt | null>;
   };
   platform: NodeJS.Platform;
 };
