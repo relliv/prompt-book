@@ -216,7 +216,14 @@ onMounted(() => {
       @apply flex flex-col gap-1;
 
       .project-item {
-        @apply flex items-center gap-3 w-full px-3 py-2 rounded-lg bg-transparent border-none cursor-pointer text-left text-(--text-secondary) transition-colors duration-200;
+        @apply relative flex items-center gap-3 w-full px-3 py-2 rounded-lg bg-transparent border-none cursor-pointer text-left text-(--text-secondary) transition-colors duration-200;
+
+        &::before {
+          @apply absolute left-0 top-1/2 w-1 h-1 rounded-full bg-transparent transition-colors duration-200;
+
+          content: '';
+          transform: translateY(-50%);
+        }
 
         .project-icon {
           @apply text-base;
@@ -227,11 +234,15 @@ onMounted(() => {
         }
 
         &:hover {
-          @apply bg-(--bg-tertiary) text-(--text-primary);
+          @apply text-(--text-primary);
         }
 
         &.active {
-          @apply bg-(--accent-color) text-white;
+          @apply text-(--text-primary);
+
+          &::before {
+            background-color: var(--accent-color);
+          }
         }
       }
 
@@ -248,14 +259,6 @@ onMounted(() => {
           @apply bg-(--border-color);
 
           color: var(--text-primary);
-        }
-      }
-
-      .project-item.active .menu-trigger {
-        color: white;
-
-        &:hover {
-          @apply bg-white/20;
         }
       }
     }
