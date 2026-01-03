@@ -7,6 +7,7 @@
         <slot />
       </AppBody>
     </div>
+    <ToastContainer />
   </div>
 </template>
 
@@ -14,6 +15,7 @@
 import AppSidebar from './AppSidebar.vue';
 import AppNavbar from './AppNavbar.vue';
 import AppBody from './AppBody.vue';
+import ToastContainer from '@app/components/ToastContainer.vue';
 </script>
 
 <style scoped>
