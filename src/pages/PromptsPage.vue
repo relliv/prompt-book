@@ -36,6 +36,7 @@
                 class="tabs-trigger"
               >
                 {{ feature.name }}
+                <span class="tabs-badge">{{ getFeaturePromptCount(feature.id) }}</span>
               </TabsTrigger>
             </TabsList>
             <PromptDialog
@@ -147,6 +148,10 @@ const featurePrompts = computed(() => {
   const featureId = Number(selectedFeatureId.value);
   return prompts.value.filter(p => p.featureId === featureId);
 });
+
+const getFeaturePromptCount = (featureId: number) => {
+  return prompts.value.filter(p => p.featureId === featureId).length;
+};
 
 const formatDate = (date: Date) => {
   return new Date(date).toLocaleDateString('en-US', {
@@ -302,7 +307,7 @@ watch(
     }
 
     .tabs-trigger {
-      @apply px-4 py-2 rounded-lg text-sm font-medium cursor-pointer border-none transition-colors duration-200;
+      @apply flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium cursor-pointer border-none transition-colors duration-200;
 
       background-color: transparent;
       color: var(--text-secondary);
@@ -310,11 +315,23 @@ watch(
       &:hover {
         background-color: var(--bg-tertiary);
         color: var(--text-primary);
+
+        .tabs-badge {
+          @apply bg-(--border-color);
+        }
       }
 
       &[data-state='active'] {
         background-color: var(--accent-color);
         color: white;
+
+        .tabs-badge {
+          @apply bg-white/20 text-white;
+        }
+      }
+
+      .tabs-badge {
+        @apply px-1.5 py-0.5 text-xs rounded-full bg-(--bg-tertiary) text-(--text-tertiary) min-w-5 text-center;
       }
     }
 
