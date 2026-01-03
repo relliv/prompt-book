@@ -74,6 +74,18 @@ const initializeTables = () => {
     )
   `);
 
+  // Create project_features table if it doesn't exist
+  sqlite.exec(`
+    CREATE TABLE IF NOT EXISTS project_features (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+      name TEXT NOT NULL,
+      copy_count INTEGER NOT NULL DEFAULT 0,
+      created_at INTEGER NOT NULL DEFAULT (unixepoch()),
+      updated_at INTEGER NOT NULL DEFAULT (unixepoch())
+    )
+  `);
+
   console.log('[Database] Tables initialized');
 };
 

@@ -36,6 +36,17 @@ interface UpdatePromptInput {
   prompt: string;
 }
 
+// Feature input types for renderer
+interface CreateFeatureInput {
+  projectId: number;
+  name: string;
+}
+
+interface UpdateFeatureInput {
+  id: number;
+  name: string;
+}
+
 // Expose protected methods that allow the renderer process to use
 // the ipcRenderer without exposing the entire object
 // Note: We expose each method individually because Proxy objects cannot be cloned by contextBridge
@@ -59,6 +70,16 @@ contextBridge.exposeInMainWorld('electronAPI', {
     deletePrompt: (input: { id: number }) => api.deletePrompt(input),
     incrementPromptCopyCount: (input: { id: number }) =>
       api.incrementPromptCopyCount(input),
+
+    // Feature CRUD operations
+    getFeaturesByProject: (input: { projectId: number }) =>
+      api.getFeaturesByProject(input),
+    getFeature: (input: { id: number }) => api.getFeature(input),
+    createFeature: (input: CreateFeatureInput) => api.createFeature(input),
+    updateFeature: (input: UpdateFeatureInput) => api.updateFeature(input),
+    deleteFeature: (input: { id: number }) => api.deleteFeature(input),
+    incrementFeatureCopyCount: (input: { id: number }) =>
+      api.incrementFeatureCopyCount(input),
   },
 
   // Additional platform info
@@ -88,6 +109,16 @@ export interface Prompt {
   updatedAt: Date;
 }
 
+// Feature type for renderer
+export interface Feature {
+  id: number;
+  projectId: number;
+  name: string;
+  copyCount: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 // Type definitions for renderer process
 export type ElectronAPI = {
   api: {
@@ -105,6 +136,15 @@ export type ElectronAPI = {
     updatePrompt: (input: UpdatePromptInput) => Promise<Prompt | null>;
     deletePrompt: (input: { id: number }) => Promise<{ success: boolean }>;
     incrementPromptCopyCount: (input: { id: number }) => Promise<Prompt | null>;
+    // Feature operations
+    getFeaturesByProject: (input: { projectId: number }) => Promise<Feature[]>;
+    getFeature: (input: { id: number }) => Promise<Feature | null>;
+    createFeature: (input: CreateFeatureInput) => Promise<Feature>;
+    updateFeature: (input: UpdateFeatureInput) => Promise<Feature | null>;
+    deleteFeature: (input: { id: number }) => Promise<{ success: boolean }>;
+    incrementFeatureCopyCount: (input: {
+      id: number;
+    }) => Promise<Feature | null>;
   };
   platform: NodeJS.Platform;
 };

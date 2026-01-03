@@ -1,7 +1,7 @@
 import { tipc } from '@egoist/tipc/main';
 import { eq, desc } from 'drizzle-orm';
 import { getDatabase } from '@main/database';
-import { projects, prompts } from '@app/shared/models';
+import { projects, prompts, features } from '@app/shared/models';
 
 // Project input types
 interface CreateProjectInput {
@@ -26,6 +26,17 @@ interface CreatePromptInput {
 interface UpdatePromptInput {
   id: number;
   prompt: string;
+}
+
+// Feature input types
+interface CreateFeatureInput {
+  projectId: number;
+  name: string;
+}
+
+interface UpdateFeatureInput {
+  id: number;
+  name: string;
 }
 
 // Define your IPC routes with full type safety
@@ -203,6 +214,100 @@ export const router = {
         .update(prompts)
         .set({ copyCount: current[0].copyCount + 1 })
         .where(eq(prompts.id, input.id))
+        .returning();
+      return result[0] ?? null;
+    }),
+
+  // ==================== Feature CRUD Operations ====================
+
+  // Get all features for a project
+  getFeaturesByProject: tipc
+    .create()
+    .procedure.input<{ projectId: number }>()
+    .action(async ({ input }) => {
+      const db = getDatabase();
+      const result = await db
+        .select()
+        .from(features)
+        .where(eq(features.projectId, input.projectId))
+        .orderBy(desc(features.createdAt));
+      return result;
+    }),
+
+  // Get single feature by ID
+  getFeature: tipc
+    .create()
+    .procedure.input<{ id: number }>()
+    .action(async ({ input }) => {
+      const db = getDatabase();
+      const result = await db
+        .select()
+        .from(features)
+        .where(eq(features.id, input.id));
+      return result[0] ?? null;
+    }),
+
+  // Create new feature
+  createFeature: tipc
+    .create()
+    .procedure.input<CreateFeatureInput>()
+    .action(async ({ input }) => {
+      const db = getDatabase();
+      const result = await db
+        .insert(features)
+        .values({
+          projectId: input.projectId,
+          name: input.name,
+        })
+        .returning();
+      const created = result[0];
+      if (!created) throw new Error('Failed to create feature');
+      return created;
+    }),
+
+  // Update feature
+  updateFeature: tipc
+    .create()
+    .procedure.input<UpdateFeatureInput>()
+    .action(async ({ input }) => {
+      const db = getDatabase();
+      const result = await db
+        .update(features)
+        .set({
+          name: input.name,
+          updatedAt: new Date(),
+        })
+        .where(eq(features.id, input.id))
+        .returning();
+      return result[0] ?? null;
+    }),
+
+  // Delete feature
+  deleteFeature: tipc
+    .create()
+    .procedure.input<{ id: number }>()
+    .action(async ({ input }) => {
+      const db = getDatabase();
+      await db.delete(features).where(eq(features.id, input.id));
+      return { success: true };
+    }),
+
+  // Increment feature copy count
+  incrementFeatureCopyCount: tipc
+    .create()
+    .procedure.input<{ id: number }>()
+    .action(async ({ input }) => {
+      const db = getDatabase();
+      const current = await db
+        .select()
+        .from(features)
+        .where(eq(features.id, input.id));
+      if (!current[0]) return null;
+
+      const result = await db
+        .update(features)
+        .set({ copyCount: current[0].copyCount + 1 })
+        .where(eq(features.id, input.id))
         .returning();
       return result[0] ?? null;
     }),
