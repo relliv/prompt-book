@@ -58,7 +58,7 @@ describe('Vue Components', () => {
     window.electronAPI = createMockElectronAPI();
   });
 
-  it('1. App.vue renders with header and navigation', () => {
+  it('1. App.vue renders with layout structure', () => {
     const router = createRouter({
       history: createMemoryHistory(),
       routes: [
@@ -71,13 +71,13 @@ describe('Vue Components', () => {
       global: { plugins: [router] },
     });
 
-    expect(wrapper.find('.app').exists()).toBe(true);
-    expect(wrapper.find('.header').exists()).toBe(true);
-    expect(wrapper.find('.nav').exists()).toBe(true);
-    expect(wrapper.text()).toContain('Electron Vite Vue');
+    expect(wrapper.find('.layout').exists()).toBe(true);
+    expect(wrapper.find('.sidebar').exists()).toBe(true);
+    expect(wrapper.find('.navbar').exists()).toBe(true);
+    expect(wrapper.text()).toContain('Prompt Book');
   });
 
-  it('2. App.vue theme toggle works correctly', async () => {
+  it('2. App.vue sidebar displays projects list', async () => {
     const router = createRouter({
       history: createMemoryHistory(),
       routes: [
@@ -90,16 +90,14 @@ describe('Vue Components', () => {
       global: { plugins: [router] },
     });
 
-    const initialTheme = document.documentElement.getAttribute('data-theme');
-    const themeToggle = wrapper.find('.theme-toggle');
-    await themeToggle.trigger('click');
-    await wrapper.vm.$nextTick();
+    const projectItems = wrapper.findAll('.project-item');
+    expect(projectItems.length).toBeGreaterThan(0);
 
-    const newTheme = document.documentElement.getAttribute('data-theme');
-    expect(newTheme).not.toBe(initialTheme);
+    const addButton = wrapper.find('.add-button');
+    expect(addButton.exists()).toBe(true);
   });
 
-  it('3. App.vue displays active navigation link', async () => {
+  it('3. App.vue navbar has search and settings', async () => {
     const router = createRouter({
       history: createMemoryHistory(),
       routes: [
@@ -112,11 +110,11 @@ describe('Vue Components', () => {
       global: { plugins: [router] },
     });
 
-    await router.push('/');
-    await wrapper.vm.$nextTick();
+    const searchInput = wrapper.find('.search-input');
+    expect(searchInput.exists()).toBe(true);
 
-    const homeLink = wrapper.findAll('.nav a')[0];
-    expect(homeLink?.classes()).toContain('active');
+    const settingsButton = wrapper.find('.action-button');
+    expect(settingsButton.exists()).toBe(true);
   });
 
   it('4. Home.vue renders page with info cards and tech icons', () => {
