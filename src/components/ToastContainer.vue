@@ -39,7 +39,7 @@ import { useToast } from '@app/composables/useToast';
 const { toasts, removeToast } = useToast();
 </script>
 
-<style scoped>
+<style>
 @reference 'tailwindcss';
 
 .toast-viewport {
