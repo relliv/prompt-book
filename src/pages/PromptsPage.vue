@@ -395,21 +395,26 @@ watch(
     @apply flex flex-col h-full;
 
     .tabs-header {
-      @apply flex items-center justify-between px-6 py-3 border-b border-(--border-color);
+      @apply flex items-center justify-between px-6 py-0 border-b border-(--border-color);
     }
 
     .tabs-list {
-      @apply flex items-center gap-1;
+      @apply flex items-center gap-0;
     }
 
     .tabs-trigger {
-      @apply flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium cursor-pointer border-none transition-colors duration-200;
+      @apply relative flex items-center gap-2 px-4 py-3 text-sm font-medium cursor-pointer border-none transition-colors duration-200;
 
       background-color: transparent;
       color: var(--text-secondary);
 
+      &::after {
+        @apply absolute bottom-0 left-0 right-0 h-0.5 bg-transparent transition-colors duration-200;
+
+        content: '';
+      }
+
       &:hover {
-        background-color: var(--bg-tertiary);
         color: var(--text-primary);
 
         .tabs-badge {
@@ -418,11 +423,14 @@ watch(
       }
 
       &[data-state='active'] {
-        background-color: var(--accent-color);
-        color: white;
+        color: var(--accent-color);
+
+        &::after {
+          background-color: var(--accent-color);
+        }
 
         .tabs-badge {
-          @apply bg-white/20 text-white;
+          @apply bg-(--accent-color)/20 text-(--accent-color);
         }
       }
 
@@ -440,12 +448,8 @@ watch(
         }
 
         &:hover {
-          @apply bg-black/10;
+          @apply bg-(--bg-tertiary);
         }
-      }
-
-      &[data-state='active'] .feature-menu-trigger:hover {
-        @apply bg-white/20;
       }
     }
 
