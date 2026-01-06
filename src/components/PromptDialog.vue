@@ -6,7 +6,11 @@
 
     <DialogPortal>
       <DialogOverlay class="dialog-overlay" />
-      <DialogContent :class="['dialog-content', { 'full-screen': isFullScreen }]">
+      <DialogContent
+        :class="['dialog-content', { 'full-screen': isFullScreen }]"
+        @escape-key-down.prevent
+        @interact-outside.prevent
+      >
         <div class="dialog-header">
           <div class="header-left">
             <DialogTitle class="dialog-title">

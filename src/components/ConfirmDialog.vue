@@ -2,7 +2,11 @@
   <DialogRoot v-model:open="isOpen">
     <DialogPortal>
       <DialogOverlay class="dialog-overlay" />
-      <DialogContent class="dialog-content">
+      <DialogContent
+        class="dialog-content"
+        @escape-key-down.prevent
+        @interact-outside.prevent
+      >
         <DialogTitle class="dialog-title">{{ title }}</DialogTitle>
         <DialogDescription class="dialog-description">
           {{ description }}

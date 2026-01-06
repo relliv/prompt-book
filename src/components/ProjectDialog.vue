@@ -6,7 +6,11 @@
 
     <DialogPortal>
       <DialogOverlay class="dialog-overlay" />
-      <DialogContent class="dialog-content">
+      <DialogContent
+        class="dialog-content"
+        @escape-key-down.prevent
+        @interact-outside.prevent
+      >
         <DialogTitle class="dialog-title">
           {{ isEditMode ? 'Edit Project' : 'Create New Project' }}
         </DialogTitle>
