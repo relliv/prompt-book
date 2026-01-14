@@ -191,6 +191,7 @@ import {
   useFeaturesStore,
 } from '@app/shared/stores';
 import { useToast } from '@app/composables/useToast';
+import { useSearch } from '@app/composables/useSearch';
 import type { Prompt, Feature } from '@app/shared/models';
 
 const route = useRoute();
@@ -198,6 +199,7 @@ const projectsStore = useProjectsStore();
 const promptsStore = usePromptsStore();
 const featuresStore = useFeaturesStore();
 const toast = useToast();
+const { searchQuery } = useSearch();
 
 const { selectedProject } = storeToRefs(projectsStore);
 const { prompts, isLoading, error } = storeToRefs(promptsStore);
@@ -212,7 +214,19 @@ const featureToDelete = ref<Feature | null>(null);
 const featurePrompts = computed(() => {
   if (!selectedFeatureId.value) return [];
   const featureId = Number(selectedFeatureId.value);
-  return prompts.value.filter(p => p.featureId === featureId);
+  let filtered = prompts.value.filter(p => p.featureId === featureId);
+
+  // Filter by search query if present
+  if (searchQuery.value.trim()) {
+    const query = searchQuery.value.toLowerCase();
+    filtered = filtered.filter(
+      p =>
+        p.title.toLowerCase().includes(query) ||
+        p.prompt.toLowerCase().includes(query)
+    );
+  }
+
+  return filtered;
 });
 
 const getFeaturePromptCount = (featureId: number) => {
@@ -227,13 +241,15 @@ const formatDate = (date: Date) => {
   });
 };
 
-const loadData = async (projectId: number) => {
+const loadData = async (projectId: number, featureIdFromQuery?: string) => {
   await projectsStore.selectProject(projectId);
   await featuresStore.fetchFeatures(projectId);
   await promptsStore.fetchPrompts(projectId);
 
-  // Select first feature by default
-  if (features.value.length > 0 && !selectedFeatureId.value) {
+  // Select feature from query param or first feature by default
+  if (featureIdFromQuery && features.value.some(f => String(f.id) === featureIdFromQuery)) {
+    selectedFeatureId.value = featureIdFromQuery;
+  } else if (features.value.length > 0 && !selectedFeatureId.value) {
     selectedFeatureId.value = String(features.value[0].id);
   }
 };
@@ -307,8 +323,9 @@ const handleConfirmDeleteFeature = async () => {
 
 onMounted(() => {
   const projectId = Number(route.params.id);
+  const featureIdFromQuery = route.query.featureId as string | undefined;
   if (projectId) {
-    loadData(projectId);
+    loadData(projectId, featureIdFromQuery);
   }
 });
 
@@ -317,7 +334,18 @@ watch(
   newId => {
     if (newId) {
       selectedFeatureId.value = '';
-      loadData(Number(newId));
+      const featureIdFromQuery = route.query.featureId as string | undefined;
+      loadData(Number(newId), featureIdFromQuery);
+    }
+  }
+);
+
+// Watch for query param changes to select feature tab
+watch(
+  () => route.query.featureId,
+  newFeatureId => {
+    if (newFeatureId && features.value.some(f => String(f.id) === newFeatureId)) {
+      selectedFeatureId.value = newFeatureId as string;
     }
   }
 );

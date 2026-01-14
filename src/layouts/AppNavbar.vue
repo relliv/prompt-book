@@ -1,6 +1,6 @@
 <template>
   <header class="navbar">
-    <div class="search-container">
+    <div ref="searchContainerRef" class="search-container">
       <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
           stroke-linecap="round"
@@ -10,12 +10,63 @@
         />
       </svg>
       <input
+        ref="searchInputRef"
         v-model="searchQuery"
         type="text"
         class="search-input"
+        :class="{ 'has-clear': hasQuery }"
         placeholder="Search prompts..."
-        @input="handleSearch"
+        @input="handleSearchInput"
+        @focus="openDropdown"
+        @keydown.escape="closeDropdown"
       />
+      <button
+        v-if="hasQuery"
+        class="clear-button"
+        aria-label="Clear search"
+        @click="clearSearch"
+      >
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"
+          />
+        </svg>
+      </button>
+
+      <div v-if="isDropdownOpen" class="search-dropdown">
+        <div v-if="isLoading" class="dropdown-loading">
+          <span>Searching...</span>
+        </div>
+        <div v-else-if="searchResults.length === 0" class="dropdown-empty">
+          <span v-if="hasQuery">No prompts found</span>
+          <span v-else>No recent prompts</span>
+        </div>
+        <div v-else class="dropdown-results">
+          <div class="dropdown-header">
+            <span v-if="hasQuery">Search Results</span>
+            <span v-else>Recent Prompts</span>
+          </div>
+          <button
+            v-for="prompt in searchResults"
+            :key="prompt.id"
+            class="dropdown-item"
+            @click="navigateToPrompt(prompt)"
+          >
+            <div class="prompt-info">
+              <span class="prompt-title">{{ prompt.title }}</span>
+              <span class="prompt-meta">
+                <span class="project-icon">{{ prompt.projectIcon }}</span>
+                <span class="project-name">{{ prompt.projectName }}</span>
+                <span class="separator">/</span>
+                <span class="feature-name">{{ prompt.featureName }}</span>
+              </span>
+            </div>
+          </button>
+        </div>
+      </div>
     </div>
 
     <div class="navbar-actions">
@@ -40,14 +91,41 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
+import { useSearch } from '@app/composables/useSearch';
 
-const searchQuery = ref('');
+const {
+  searchQuery,
+  searchResults,
+  isDropdownOpen,
+  isLoading,
+  hasQuery,
+  handleSearchInput,
+  openDropdown,
+  closeDropdown,
+  clearSearch,
+  navigateToPrompt,
+} = useSearch();
 
-const handleSearch = () => {
-  // TODO: Implement search functionality
-  console.log('Searching for:', searchQuery.value);
+const searchContainerRef = ref<HTMLElement | null>(null);
+const searchInputRef = ref<HTMLInputElement | null>(null);
+
+const handleClickOutside = (event: MouseEvent) => {
+  if (
+    searchContainerRef.value &&
+    !searchContainerRef.value.contains(event.target as Node)
+  ) {
+    closeDropdown();
+  }
 };
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside);
+});
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside);
+});
 
 const handleSettings = () => {
   // TODO: Implement settings panel
@@ -65,11 +143,15 @@ const handleSettings = () => {
     @apply relative flex items-center flex-1 max-w-md;
 
     .search-icon {
-      @apply absolute left-3 w-5 h-5 text-(--text-tertiary) pointer-events-none;
+      @apply absolute left-3 w-5 h-5 text-(--text-tertiary) pointer-events-none z-10;
     }
 
     .search-input {
       @apply w-full pl-10 pr-4 py-2 rounded-lg border border-(--border-color) bg-(--bg-primary) text-(--text-primary) text-sm transition-all duration-200;
+
+      &.has-clear {
+        @apply pr-10;
+      }
 
       &::placeholder {
         @apply text-(--text-tertiary);
@@ -77,6 +159,69 @@ const handleSettings = () => {
 
       &:focus {
         @apply outline-none border-(--accent-color) ring-2 ring-(--accent-color)/20;
+      }
+    }
+
+    .clear-button {
+      @apply absolute right-3 flex items-center justify-center w-5 h-5 rounded-full bg-transparent border-none cursor-pointer text-(--text-tertiary) transition-colors duration-200 z-10;
+
+      &:hover {
+        @apply text-(--text-primary) bg-(--bg-tertiary);
+      }
+
+      svg {
+        @apply w-4 h-4;
+      }
+    }
+
+    .search-dropdown {
+      @apply absolute top-full left-0 right-0 mt-2 rounded-lg border border-(--border-color) bg-(--bg-secondary) shadow-lg z-50 max-h-80 overflow-auto;
+
+      animation: dropdown-show 150ms cubic-bezier(0.16, 1, 0.3, 1);
+
+      .dropdown-loading,
+      .dropdown-empty {
+        @apply flex items-center justify-center py-6 text-sm text-(--text-tertiary);
+      }
+
+      .dropdown-header {
+        @apply px-3 py-2 text-xs font-semibold uppercase tracking-wider text-(--text-tertiary) border-b border-(--border-color);
+      }
+
+      .dropdown-results {
+        @apply py-1;
+      }
+
+      .dropdown-item {
+        @apply w-full flex items-start gap-3 px-3 py-2.5 text-left bg-transparent border-none cursor-pointer transition-colors duration-150;
+
+        &:hover {
+          @apply bg-(--bg-tertiary);
+        }
+
+        .prompt-info {
+          @apply flex flex-col gap-0.5 min-w-0;
+
+          .prompt-title {
+            @apply text-sm font-medium text-(--text-primary) truncate;
+          }
+
+          .prompt-meta {
+            @apply flex items-center gap-1 text-xs text-(--text-tertiary);
+
+            .project-icon {
+              @apply text-sm;
+            }
+
+            .separator {
+              @apply mx-0.5;
+            }
+
+            .feature-name {
+              @apply truncate;
+            }
+          }
+        }
       }
     }
   }
@@ -95,6 +240,18 @@ const handleSettings = () => {
         @apply w-5 h-5;
       }
     }
+  }
+}
+
+@keyframes dropdown-show {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 </style>

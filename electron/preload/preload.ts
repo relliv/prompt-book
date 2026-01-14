@@ -73,6 +73,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     deletePrompt: (input: { id: number }) => api.deletePrompt(input),
     incrementPromptCopyCount: (input: { id: number }) =>
       api.incrementPromptCopyCount(input),
+    searchPrompts: (input: { query?: string; limit?: number }) =>
+      api.searchPrompts(input),
 
     // Feature CRUD operations
     getFeaturesByProject: (input: { projectId: number }) =>
@@ -114,6 +116,13 @@ export interface Prompt {
   updatedAt: Date;
 }
 
+// Prompt search result type for renderer
+export interface PromptSearchResult extends Prompt {
+  projectName: string;
+  projectIcon: string | null;
+  featureName: string;
+}
+
 // Feature type for renderer
 export interface Feature {
   id: number;
@@ -141,6 +150,10 @@ export type ElectronAPI = {
     updatePrompt: (input: UpdatePromptInput) => Promise<Prompt | null>;
     deletePrompt: (input: { id: number }) => Promise<{ success: boolean }>;
     incrementPromptCopyCount: (input: { id: number }) => Promise<Prompt | null>;
+    searchPrompts: (input: {
+      query?: string;
+      limit?: number;
+    }) => Promise<PromptSearchResult[]>;
     // Feature operations
     getFeaturesByProject: (input: { projectId: number }) => Promise<Feature[]>;
     getFeature: (input: { id: number }) => Promise<Feature | null>;

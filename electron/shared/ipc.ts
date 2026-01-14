@@ -317,6 +317,46 @@ export const router = {
         .returning();
       return result[0] ?? null;
     }),
+
+  // Search prompts globally
+  searchPrompts: tipc
+    .create()
+    .procedure.input<{ query?: string; limit?: number }>()
+    .action(async ({ input }) => {
+      const db = getDatabase();
+      const limit = input.limit ?? 10;
+
+      const result = await db
+        .select({
+          id: prompts.id,
+          projectId: prompts.projectId,
+          featureId: prompts.featureId,
+          title: prompts.title,
+          prompt: prompts.prompt,
+          copyCount: prompts.copyCount,
+          createdAt: prompts.createdAt,
+          updatedAt: prompts.updatedAt,
+          projectName: projects.name,
+          projectIcon: projects.icon,
+          featureName: features.name,
+        })
+        .from(prompts)
+        .innerJoin(projects, eq(prompts.projectId, projects.id))
+        .innerJoin(features, eq(prompts.featureId, features.id))
+        .orderBy(desc(prompts.updatedAt))
+        .limit(limit);
+
+      if (input.query && input.query.trim()) {
+        const query = input.query.toLowerCase();
+        return result.filter(
+          p =>
+            p.title.toLowerCase().includes(query) ||
+            p.prompt.toLowerCase().includes(query)
+        );
+      }
+
+      return result;
+    }),
 };
 
 export type AppRouter = typeof router;

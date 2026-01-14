@@ -13,6 +13,12 @@ export interface UpdatePromptInput {
   prompt: string;
 }
 
+export interface PromptSearchResult extends Prompt {
+  projectName: string;
+  projectIcon: string | null;
+  featureName: string;
+}
+
 export const promptService = {
   async getByProject(projectId: number): Promise<Prompt[]> {
     return window.electronAPI.api.getPromptsByProject({ projectId });
@@ -36,5 +42,9 @@ export const promptService = {
 
   async incrementCopyCount(id: number): Promise<Prompt | null> {
     return window.electronAPI.api.incrementPromptCopyCount({ id });
+  },
+
+  async search(query?: string, limit?: number): Promise<PromptSearchResult[]> {
+    return window.electronAPI.api.searchPrompts({ query, limit });
   },
 };
